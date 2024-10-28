@@ -1,0 +1,31 @@
+.Kalend__text,
+.Kalend__main,
+.Kalend__ButtonBase-border {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif !important
+}
+
+
+
+@media print {
+
+    .Kalend__CalendarDesktopNavigation__buttons,
+    .Kalend__CalendarViewDropdown__wrapper,
+    .Kalend__DesktopLayout {
+        display: none !important;
+    }
+
+    .Kalend__HeaderCalendarTitle,
+    .Kalend__HeaderCalendarTitle-mobile,
+    .Kalend__HeaderCalendarTitle-mobile-dark,
+    .Kalend__HeaderCalendarTitle-dark {
+        font-size: 1.5em !important;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    @page {
+        size: landscape
+    }
+
+
+}

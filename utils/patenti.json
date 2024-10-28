@@ -1,0 +1,22 @@
+[
+    {
+        "cod": "A1",
+        "descrizione": "Esame patente A1",
+        "prezzo": 150
+    },
+    {
+        "cod": "A2",
+        "descrizione": "Esame patente A2",
+        "prezzo": 150
+    },
+    {
+        "cod": "A1",
+        "descrizione": "Esame ripetuto patente A1",
+        "prezzo": 150
+    },
+    {
+        "cod": "A2",
+        "descrizione": "Esame ripetuto patente A2",
+        "prezzo": 150
+    }
+]

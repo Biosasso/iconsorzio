@@ -42,6 +42,7 @@ export default async function handler(req, res) {
                     inizioServizio: true,
                     fineServizio: true,
                     durataMinuti: true,
+                    esito: true,
                     AllievoIstruzione: {
                         select: {
                             allievo: {
@@ -97,6 +98,7 @@ export default async function handler(req, res) {
                     inizioServizio: true,
                     fineServizio: true,
                     durataMinuti: true,
+                    esito: true,
                     AllievoIstruzione: {
                         select: {
                             allievo: {

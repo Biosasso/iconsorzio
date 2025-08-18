@@ -17,6 +17,104 @@ import 'kalend/dist/styles/index.css'; // import styles
 import AppuntamentoModal from '../../components/dashboard/appuntamentoModal';
 import { DateTime } from 'datetime-next';
 
+// Funzione per aggiungere icone per situazioni critiche
+const getEventIcon = (item) => {
+  const esitoLower = (item.esito || '').toLowerCase().trim();
+  const tipoServizio = item.tariffa?.tipo?.tipo || '';
+  
+  // Per gli ESAMI
+  if (tipoServizio.toLowerCase().includes('esame')) {
+    // Simbolo per esami assenti
+    if (esitoLower.includes('assente')) {
+      return '⚠️ ';
+    }
+  }
+  
+  // Per le GUIDE
+  if (tipoServizio.toLowerCase().includes('guida')) {
+    // Simbolo per guide assenti normali
+    if (esitoLower.includes('assente')) {
+      return '⚠️ ';
+    }
+    
+    // Simboli per guide annullate - USO VALORI ESATTI
+    if (esitoLower === 'guida_annullata_1') {
+      return '🌦️⚡ '; // Nuvola con pioggia + fulmine
+    }
+    if (esitoLower === 'guida_annullata_2') {
+      return '🔧 '; // Guasto meccanico
+    }
+  }
+  
+  return ''; // Nessun simbolo per situazioni normali
+};
+
+const getEventColor = (item) => {
+  // Uso item.tariffa.tipo.tipo per distinguere guide/esami
+  const tipoServizio = item.tariffa?.tipo?.tipo || '';
+  
+  // Se è un esame, usa colori specifici per esiti
+  if (tipoServizio.toLowerCase().includes('esame')) {
+    // Rendo case-insensitive il confronto
+    const esitoLower = (item.esito || '').toLowerCase();
+    switch (esitoLower) {
+      case 'idoneo':
+        return '#059669'; // Verde smeraldo più intenso (migliore contrasto)
+      case 'respinto':
+        return '#DC2626'; // Rosso più scuro (migliore accessibilità)
+      case 'assente':
+        return '#374151'; // Grigio scuro (mantiene buon contrasto)
+      case 'seleziona':
+        return '#FCD34D'; // Giallo-arancione molto chiaro per esami in attesa
+      default:
+        return '#FCD34D'; // Giallo-arancione molto chiaro di default per esami
+    }
+  }
+  
+  // Se è una guida, usa colori specifici per esiti
+  if (tipoServizio.toLowerCase().includes('guida')) {
+    // Controllo se la guida è passata o futura
+    const now = Math.floor(Date.now() / 1000); // Timestamp attuale in secondi
+    const isPast = item.fineServizio < now; // La guida è finita
+    
+    // Se esito è vuoto o null
+    if (!item.esito || item.esito === '') {
+      if (isPast) {
+        return '#3B82F6'; // Blu chiaro per guide effettuate (corrected from #9CA3AF - Grigio chiaro)
+      } else {
+        return '#93C5FD'; // Azzurro più chiaro per guide future in attesa
+      }
+    }
+    
+    // Se ha un esito specifico - Rendo case-insensitive e robusto
+    const esitoLower = item.esito.toLowerCase().trim();
+    
+    // Check per guide presenti (varie forme)
+    if (esitoLower.includes('presente')) {
+      return '#3B82F6'; // Blu più chiaro per guide presenti
+    }
+    
+    // Check per guide assenti (solo normali, grigio)
+    if (esitoLower.includes('assente')) {
+      return '#374151'; // Grigio scuro per guide assenti normali
+    }
+    
+    // Check per guide annullate - USO VALORI ESATTI
+    if (esitoLower === 'guida_annullata_1') {
+      return '#6D28D9'; // Viola molto più intenso per maltempo (massima differenza dal blu)
+    }
+    if (esitoLower === 'guida_annullata_2') {
+      return '#F97316'; // Arancione per guasto meccanico (con simbolo 🔧)
+    }
+    
+    // Default
+    return '#6B7280'; // Grigio default
+  }
+  
+  // Default per altri tipi di servizio
+  return '#6B7280'; // Grigio default
+};
+
 export default function Dashboard({ }) {
 
     DateTime.setDefaultLocale('it-IT');
@@ -107,8 +205,8 @@ export default function Dashboard({ }) {
                     startAt: new Date(item.inizioServizio * 1000).toISOString(),
                     endAt: new Date(item.fineServizio * 1000).toISOString(),
                     timezoneStartAt: 'Europe/Rome', // optional
-                    summary: item.AllievoIstruzione.allievo.cognome === 'Amdinistrator' ? 'BLOCCO ESAME' : `${item.tariffa.tipo.tipo_cod.includes('esame') ? 'Esame' : item.tariffa.tipo.tipo} ${item.AllievoIstruzione.allievo.cognome} ${item.AllievoIstruzione.allievo.nome} ${item.AllievoIstruzione.allievo.tel} - ${item.AllievoIstruzione.allievo?.autoscuola?.denominazione} - Istruttore: ${item.istruttore?.profile?.firstname} ${item.istruttore?.profile?.lastname} - Veicolo: ${item.veicolo?.modello.toUpperCase()} Targa: ${item.veicolo?.targa.toUpperCase()}`,
-                    color: `${item.tariffa.tipo.tipo_cod.includes('esame') ? 'yellow' : 'blue'}`,
+                    summary: item.AllievoIstruzione.allievo.cognome === 'Amdinistrator' ? 'BLOCCO ESAME' : `${getEventIcon(item)}${item.tariffa.tipo.tipo_cod.includes('esame') ? 'Esame' : item.tariffa.tipo.tipo} ${item.AllievoIstruzione.allievo.cognome} ${item.AllievoIstruzione.allievo.nome} ${item.AllievoIstruzione.allievo.tel} - ${item.AllievoIstruzione.allievo?.autoscuola?.denominazione} - Istruttore: ${item.istruttore?.profile?.firstname} ${item.istruttore?.profile?.lastname} - Veicolo: ${item.veicolo?.modello.toUpperCase()} Targa: ${item.veicolo?.targa.toUpperCase()}`,
+                    color: getEventColor(item),
                     calendarID: 'work',
                     originalData: item
                 })

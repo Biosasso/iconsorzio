@@ -36,7 +36,6 @@ export default NextAuth({
 
                         if (!user) {
                             console.log('Utente non trovato')
-                            return
                             throw new Error('Utente non trovato!');
                         }
                         const isValid = await verifyPassword(
@@ -47,7 +46,6 @@ export default NextAuth({
 
                         if (!isValid) {
                             console.log('Password sbagliata')
-                            return
                             throw new Error('Login non riuscito!');
                         }
                         // if (user.forceResetPassword) {

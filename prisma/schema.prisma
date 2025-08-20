@@ -1,10 +1,13 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextIndex"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
@@ -12,21 +15,21 @@ model Company {
   id                String              @id @default(cuid())
   vat               String              @unique
   country           String              @default("IT")
-  createdAt         DateTime?           @default(now())
+  profile           CompanyProfile?
+  users             UsersCompanies[]
+  RulesGroup        RulesGroup[]
+  UsersRulesGroup   CompanyRulesGroup[]
+  Autoscuole        Autoscuola[]
+  tariffaTipo       TariffaTipo[]
+  Tariffa           Tariffa[]
+  Patente           Patente[]
+  Veicolo           Veicolo[]
+  PatentiOnVeicoli  PatentiOnVeicoli[]
+  Workplace         Workplace[]
   Allievi           Allievo[]
   AllievoIstruzioni AllievoIstruzione[]
   AllievoServizio   AllievoServizio[]
-  Autoscuole        Autoscuola[]
-  profile           CompanyProfile?
-  UsersRulesGroup   CompanyRulesGroup[]
-  Patente           Patente[]
-  PatentiOnVeicoli  PatentiOnVeicoli[]
-  RulesGroup        RulesGroup[]
-  Tariffa           Tariffa[]
-  tariffaTipo       TariffaTipo[]
-  users             UsersCompanies[]
-  Veicolo           Veicolo[]
-  Workplace         Workplace[]
+  createdAt         DateTime?           @default(now())
 }
 
 model User {
@@ -34,37 +37,37 @@ model User {
   email                     String            @unique
   emailVerified             DateTime?
   image                     String?
-  profileId                 String?
-  activeCompanyId           String?
-  createdAt                 DateTime?         @default(now())
   accounts                  Account[]
+  profile                   UserProfile?
+  profileId                 String?
+  userPassword              UserPassword?
+  companies                 UsersCompanies[]
+  activeCompanyId           String?
   activeCompany             ActiveCompany?
   AllievoServizioIstruttore AllievoServizio[]
-  userPassword              UserPassword?
-  profile                   UserProfile?
-  companies                 UsersCompanies[]
+  createdAt                 DateTime?         @default(now())
 }
 
 model UsersCompanies {
   id                     String      @id @default(cuid())
-  userId                 String
-  companyId              String
   isActive               Boolean     @default(true)
+  company                Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId              String
+  user                   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                 String
+  rulesGroup             RulesGroup? @relation(fields: [rulesGroupId], references: [id])
   rulesGroupId           String?
   appartenenza           String      @default("consorzio")
   autoscuolaAppartenenza String?
   createdAt              DateTime?   @default(now())
-  company                Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  rulesGroup             RulesGroup? @relation(fields: [rulesGroupId], references: [id])
-  user                   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UserPassword {
   id        String    @id @default(cuid())
   password  String
   userId    String    @unique
-  createdAt DateTime? @default(now())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime? @default(now())
 }
 
 model UserProfile {
@@ -79,93 +82,98 @@ model UserProfile {
   country       String?   @default("")
   phone         String?   @default("")
   userId        String    @unique
-  createdAt     DateTime? @default(now())
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime? @default(now())
 }
 
 model CompanyProfile {
   id        String    @id @default(cuid())
   name      String
   companyId String    @unique
-  createdAt DateTime? @default(now())
   comapny   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime? @default(now())
 }
 
 model Account {
   id                 String  @id @default(cuid())
-  userId             String
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String?
-  access_token       String?
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String?
+  id_token           String? @db.Text
   session_state      String?
   oauth_token_secret String?
   oauth_token        String?
-  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
 model Rule {
-  id                String              @id @default(cuid())
-  description       String
-  recommended       String?
-  bgColor           String
-  companyId         String
-  accessCode        String
-  createdAt         DateTime?           @default(now())
+  id          String  @id @default(cuid())
+  companyId   String
+  description String
+  accessCode  String //like nextjs page folder
+  recommended String?
+  bgColor     String
+
   companyRulesGroup CompanyRulesGroup[]
+  createdAt         DateTime?           @default(now())
 }
 
 model RulesGroup {
   id                String              @id @default(cuid())
   companyId         String
+  company           Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
   name              String
   description       String
-  createdAt         DateTime?           @default(now())
-  company           Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyRulesGroup CompanyRulesGroup[]
   usersCompanies    UsersCompanies[]
+  createdAt         DateTime?           @default(now())
 }
 
 model CompanyRulesGroup {
   id           String      @id @default(cuid())
   companyId    String
-  ruleId       String
-  rulesGroupId String?
-  createdAt    DateTime?   @default(now())
   company      Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  ruleId       String
   rule         Rule        @relation(fields: [ruleId], references: [id], onDelete: Cascade)
   rulesGroup   RulesGroup? @relation(fields: [rulesGroupId], references: [id], onDelete: Cascade)
+  rulesGroupId String?
+  createdAt    DateTime?   @default(now())
 }
 
 model ActiveCompany {
   id        String    @id @default(cuid())
   isActive  String
   userId    String    @unique
-  createdAt DateTime? @default(now())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime? @default(now())
 }
 
 model Patente {
-  id                String              @id @default(cuid())
-  companyId         String
-  createdAt         DateTime?           @default(now())
-  nome              String
-  company           Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  AllievoIstruzioni AllievoIstruzione[]
-  Veicoli           PatentiOnVeicoli[]
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  nome      String
+
   Tariffe           Tariffa[]
+  Veicoli           PatentiOnVeicoli[]
+  AllievoIstruzioni AllievoIstruzione[]
+  createdAt         DateTime?           @default(now())
 }
 
 model Autoscuola {
-  id                 String    @id @default(cuid())
+  id                 String    @default(cuid())
   companyId          String
+  company            Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  codMotorizzazione  String    @map("cod_motorizzazione")
   denominazione      String?
   consorzioToggle    Boolean?  @default(true) @map("consorzio_toggle")
   ragSoc             String?   @map("rag_soc")
@@ -175,7 +183,6 @@ model Autoscuola {
   nCiv               String?   @map("n_civ")
   codFisc            String?   @map("cod_fisc")
   partIva            String?   @map("part_iva")
-  codMotorizzazione  String    @map("cod_motorizzazione")
   tel1               String?   @map("tel_1")
   tel2               String?   @map("tel_2")
   cel                String?
@@ -185,50 +192,52 @@ model Autoscuola {
   sdi                String?
   iban               String?
   note               String?
-  isActive           Boolean?  @default(true)
   limitePrenotazioni Int?      @default(5)
-  createdAt          DateTime? @default(now())
-  company            Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  isActive           Boolean?  @default(true)
   Allievi            Allievo[]
+  createdAt          DateTime? @default(now())
+
+  @@id([id])
 }
 
 model TariffaTipo {
   id        String    @id @default(cuid())
   companyId String
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   tipo      String
   tipo_cod  String
-  createdAt DateTime? @default(now())
-  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   Tariffe   Tariffa[]
+  createdAt DateTime? @default(now())
 }
 
 model Tariffa {
   id              String            @id @default(cuid())
+  companyId       String
+  company         Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   tariffaTipoId   String
+  tipo            TariffaTipo       @relation(fields: [tariffaTipoId], references: [id], onDelete: Cascade)
+  patenteId       String
+  patente         Patente           @relation(fields: [patenteId], references: [id], onDelete: Cascade)
   prezzo          Decimal
   isActive        Boolean           @default(true)
-  companyId       String
-  createdAt       DateTime?         @default(now())
-  patenteId       String
-  company         Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  patente         Patente           @relation(fields: [patenteId], references: [id], onDelete: Cascade)
-  tipo            TariffaTipo       @relation(fields: [tariffaTipoId], references: [id], onDelete: Cascade)
   AllievoServizio AllievoServizio[]
+  createdAt       DateTime?         @default(now())
 }
 
 model Workplace {
   id        String    @id @default(cuid())
   companyId String
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   nome      String
   isActive  Boolean   @default(true)
-  createdAt DateTime? @default(now())
-  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   Veicoli   Veicolo[]
+  createdAt DateTime? @default(now())
 }
 
 model Veicolo {
   id                    String             @id @default(cuid())
   companyId             String
+  company               Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   nome                  String
   targa                 String
   modello               String
@@ -237,85 +246,100 @@ model Veicolo {
   scadenzaAssicurazione DateTime
   scadenzaBollo         DateTime
   isActive              Boolean            @default(true)
-  createdAt             DateTime?          @default(now())
   workplaceId           String
-  company               Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   workplace             Workplace          @relation(fields: [workplaceId], references: [id], onDelete: Cascade)
-  AllievoServizio       AllievoServizio[]
   Patenti               PatentiOnVeicoli[]
+  AllievoServizio       AllievoServizio[]
+  createdAt             DateTime?          @default(now())
 }
+
+// model VeicoloImpegno {
+//   id String @id @default(cuid())
+//   companyId          String
+//   company            Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+//   veicoloId String
+//   veicolo Veicolo @relation(fields: [veicoloId], references: [id], onDelete: Restrict)
+//   dataservizio DateTime
+//   servizio AllievoServizio @relation(fields: [dataservizio], references: [dataServizio], onDelete: Restrict)
+
+// }
 
 model PatentiOnVeicoli {
   companyId String
-  patenteId String
-  veicoloId String
-  createdAt DateTime? @default(now())
   company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  patenteId String
   patente   Patente   @relation(fields: [patenteId], references: [id], onDelete: Cascade)
+  veicoloId String
   veicolo   Veicolo   @relation(fields: [veicoloId], references: [id], onDelete: Cascade)
+  createdAt DateTime? @default(now())
 
   @@id([companyId, patenteId, veicoloId])
 }
 
 model Allievo {
-  id                   String              @id @default(cuid())
+  id                   String              @default(cuid())
   companyId            String
+  company              Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
   autoscuolaId         String
+  autoscuola           Autoscuola          @relation(fields: [autoscuolaId], references: [id])
+  codFisc              String
+  nome                 String?
+  cognome              String?
   iscrizioneNumero     String?
   iscrizioneData       DateTime?
   codiceMeccanografico String?
-  nome                 String?
-  cognome              String?
   nascitaLuogo         String?
   nascitaData          DateTime?
   genere               String?
-  codFisc              String
   indirizzo            String?
   provincia            String?
   comune               String?
   cap                  String?
   tel                  String?
   email                String?
-  createdAt            DateTime?           @default(now())
-  autoscuola           Autoscuola          @relation(fields: [autoscuolaId], references: [id])
-  company              Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
   AllievoIstruzioni    AllievoIstruzione[]
+  createdAt            DateTime?           @default(now())
+
+  @@id([id])
 }
 
 model AllievoIstruzione {
+  id                   String            @default(cuid())
   companyId            String
+  company              Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   patenteId            String
+  patente              Patente           @relation(fields: [patenteId], references: [id], onDelete: Cascade)
   allievoId            String
+  allievo              Allievo           @relation(fields: [allievoId], references: [id], onDelete: Cascade)
+  //Se un corso e quindi non c'è il folgio rosa riempire marcaOperativa con data del corso
   marcaOperativa       String
   dataEsame            String?
   foglioRosaRilascio   DateTime?
   foglioRosaScadenza   DateTime?
   codiceStatino        String?
-  createdAt            DateTime?         @default(now())
-  id                   String            @id @default(cuid())
   istruzioneCompletata Boolean           @default(false)
-  allievo              Allievo           @relation(fields: [allievoId], references: [id], onDelete: Cascade)
-  company              Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  patente              Patente           @relation(fields: [patenteId], references: [id], onDelete: Cascade)
   AllievoServizi       AllievoServizio[]
+  createdAt            DateTime?         @default(now())
+
+  @@id([id])
 }
 
 model AllievoServizio {
-  companyId           String
-  tariffaId           String
-  durataMinuti        Int?
-  istruttoreId        String?
-  esito               String?
-  allievoIStruzioneId String
   id                  String            @id @default(cuid())
-  veicoloId           String?
-  fineServizio        Decimal?
-  inizioServizio      Decimal?
-  createdAt           DateTime?         @default(now())
-  createdFrom         String?           @default("consorzio")
-  AllievoIstruzione   AllievoIstruzione @relation(fields: [allievoIStruzioneId], references: [id])
+  companyId           String
   company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  istruttore          User?             @relation(fields: [istruttoreId], references: [id], onDelete: Restrict)
-  tariffa             Tariffa           @relation(fields: [tariffaId], references: [id])
+  allievoIStruzioneId String
+  AllievoIstruzione   AllievoIstruzione @relation(fields: [allievoIStruzioneId], references: [id], onDelete: Restrict)
+  tariffaId           String
+  tariffa             Tariffa           @relation(fields: [tariffaId], references: [id], onDelete: Restrict)
+  inizioServizio      Decimal?
+  fineServizio        Decimal?
+  durataMinuti        Int?
+  veicoloId           String?
   veicolo             Veicolo?          @relation(fields: [veicoloId], references: [id], onDelete: Restrict)
+  istruttoreId        String?
+  istruttore          User?             @relation(fields: [istruttoreId], references: [id], onDelete: Restrict)
+  esito               String?
+  createdFrom         String?           @default("consorzio")
+  createdAt           DateTime?         @default(now())
 }

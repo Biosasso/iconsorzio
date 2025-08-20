@@ -320,3 +320,4 @@ model AllievoServizio {
   tariffa             Tariffa           @relation(fields: [tariffaId], references: [id])
   veicolo             Veicolo?          @relation(fields: [veicoloId], references: [id], onDelete: Restrict)
 }
+// Vercel rebuild trigger - $(date)

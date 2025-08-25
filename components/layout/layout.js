@@ -84,25 +84,92 @@ export default function Layout({
 
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
-    const [originalTableData, setOriginalTableData] = useState(tableData);
+    const [originalTableData, setOriginalTableData] = useState([]);
+    const [isDataInitialized, setIsDataInitialized] = useState(false);
+    const [currentPage, setCurrentPage] = useState(page);
 
+    // Gestione intelligente di originalTableData
     useEffect(() => {
-        const cleanUpFunction = async () => {
-            setOriginalTableData(tableData ? tableData : [])
+        // Se cambia la pagina, resetta tutto
+        if (page !== currentPage) {
+            setCurrentPage(page);
+            setIsDataInitialized(false);
+            setOriginalTableData([]);
+            return;
         }
-        cleanUpFunction();
-    }, [tableData !== undefined])
+        
+        // Solo se i dati sono validi e non sono stati ancora inizializzati per questa pagina
+        if (tableData && Array.isArray(tableData) && tableData.length > 0 && !isDataInitialized) {
+            setOriginalTableData([...tableData]);
+            setIsDataInitialized(true);
+        }
+    }, [tableData, page, currentPage, isDataInitialized])
+
+
+
+    // Reset automatico della ricerca quando cambia la pagina o il tab
+    useEffect(() => {
+        // Pulisce tutti i campi di ricerca
+        const searchInputs = document.querySelectorAll('input[type="search"], input[name="search"], input[name="search-field"]');
+        searchInputs.forEach(input => {
+            if (input.value) {
+                input.value = '';
+            }
+        });
+        
+        // Resetta i dati della tabella solo se abbiamo dati originali
+        if (setTableData && originalTableData && originalTableData.length > 0) {
+            setTableData([...originalTableData]);
+        }
+    }, [page, router.asPath, originalTableData]);
+
+    // Reset quando cambia il tab attivo (per gestire SWR data changes)
+    useEffect(() => {
+        if (router.asPath.includes('list') && originalTableData && originalTableData.length > 0) {
+            // Pulisce i campi di ricerca
+            const searchInputs = document.querySelectorAll('input[type="search"], input[name="search"], input[name="search-field"]');
+            searchInputs.forEach(input => {
+                if (input.value) {
+                    input.value = '';
+                }
+            });
+            // Ripristina i dati originali
+            if (setTableData) {
+                setTableData([...originalTableData]);
+            }
+        }
+    }, [router.asPath, originalTableData, setTableData]);
 
 
     function filterDataTable(value) {
-        if (value.length > 0) {
-            if (setTableData && setTableData.length > 0) {
-                setTableData(filterItems(originalTableData, value))
+        // Normalizza il valore di input rimuovendo spazi extra
+        const normalizedValue = value.trim();
+        
+        // Se il campo è vuoto, ripristina tutto
+        if (normalizedValue.length === 0) {
+            // SEMPRE ripristina da originalTableData se disponibile
+            if (originalTableData && originalTableData.length > 0 && isDataInitialized) {
+                setTableData([...originalTableData]);
+            } else if (tableData && tableData.length > 0) {
+                // Fallback solo se non abbiamo dati originali
+                setTableData([...tableData]);
             }
+            return;
         }
-        else {
-            if (setTableData) {
-                setTableData(originalTableData)
+        
+        // Se c'è un valore di ricerca valido, filtra i dati
+        // SEMPRE usa originalTableData per il filtraggio se disponibile
+        const sourceData = (originalTableData && originalTableData.length > 0 && isDataInitialized) ? originalTableData : tableData;
+        
+        if (setTableData && sourceData && sourceData.length > 0) {
+            try {
+                const filteredData = filterItems(sourceData, normalizedValue);
+                setTableData(filteredData);
+            } catch (error) {
+                // In caso di errore, ripristina i dati originali
+                if (sourceData) {
+                    setTableData([...sourceData]);
+                }
             }
         }
     }
@@ -186,17 +253,33 @@ export default function Layout({
             }
             if (page.includes('allievi')) {
                 if (activeTab === 'list') {
+                    // Normalizza la query di ricerca
+                    const normalizedQuery = query.toLowerCase().trim();
+                    
+                    // Crea combinazioni normalizzate dei nomi per ricerca flessibile
+                    const nomeNormalizzato = el.nome ? el.nome.toLowerCase() : '';
+                    const cognomeNormalizzato = el.cognome ? el.cognome.toLowerCase() : '';
+                    const nomeCompleto = `${cognomeNormalizzato} ${nomeNormalizzato}`.trim();
+                    const nomeCompletoInverso = `${nomeNormalizzato} ${cognomeNormalizzato}`.trim();
+                    
                     if (
-                        el.nome.toLowerCase().indexOf(query.toLowerCase()) !== -1
-                        || el.cognome.toLowerCase().indexOf(query.toLowerCase()) !== -1
-                        || (el.nome.toLowerCase() + ' ' + el.cognome.toLowerCase()).indexOf(query.toLowerCase()) !== -1
-                        || el.autoscuola.denominazione.toLowerCase().indexOf(query.toLowerCase()) !== -1
-                        || el.iscrizioneNumero.toLowerCase().indexOf(query.toLowerCase()) !== -1
+                        // Ricerca per nome individuale
+                        nomeNormalizzato.indexOf(normalizedQuery) !== -1
+                        // Ricerca per cognome individuale
+                        || cognomeNormalizzato.indexOf(normalizedQuery) !== -1
+                        // Ricerca per nome completo (cognome + nome)
+                        || nomeCompleto.indexOf(normalizedQuery) !== -1
+                        // Ricerca per nome completo inverso (nome + cognome)
+                        || nomeCompletoInverso.indexOf(normalizedQuery) !== -1
+                        // Ricerca per autoscuola
+                        || el.autoscuola.denominazione.toLowerCase().indexOf(normalizedQuery) !== -1
+                        // Ricerca per numero iscrizione
+                        || el.iscrizioneNumero.toLowerCase().indexOf(normalizedQuery) !== -1
                     ) {
                         return true
                     }
                     else {
-                        const foundInAllievoIstruzioni = el.AllievoIstruzioni.find(item => item.patente.nome.toLowerCase().indexOf(query.toLowerCase()) !== -1)
+                        const foundInAllievoIstruzioni = el.AllievoIstruzioni.find(item => item.patente.nome.toLowerCase().indexOf(normalizedQuery) !== -1)
                         if (foundInAllievoIstruzioni) {
                             return true
                         }
@@ -496,12 +579,35 @@ export default function Layout({
                                             <input
                                                 onChange={(e) => filterDataTable(e.target.value)}
                                                 onFocus={() => setOriginalTableData(tableData)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Escape') {
+                                                        e.target.value = '';
+                                                        filterDataTable('');
+                                                    }
+                                                }}
                                                 type="text"
                                                 name="search"
                                                 id="search"
-                                                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 sm:text-sm border-gray-300 rounded-md"
-                                                placeholder="Cerca"
+                                                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 pr-8 sm:text-sm border-gray-300 rounded-md"
+                                                placeholder="Cerca (ESC per pulire)"
                                             />
+                                            {/* Pulsante di reset ricerca desktop */}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const searchInput = document.getElementById('search');
+                                                    if (searchInput) {
+                                                        searchInput.value = '';
+                                                        filterDataTable('');
+                                                    }
+                                                }}
+                                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                                                title="Pulisci ricerca"
+                                            >
+                                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
                                 }
@@ -595,12 +701,35 @@ export default function Layout({
                                                 <input
                                                     onChange={(e) => filterDataTable(e.target.value)}
                                                     onFocus={() => setOriginalTableData(tableData)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Escape') {
+                                                            e.target.value = '';
+                                                            filterDataTable('');
+                                                        }
+                                                    }}
                                                     id="search-field"
                                                     name="search-field"
                                                     className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400 sm:text-sm"
-                                                    placeholder="Cerca"
+                                                    placeholder="Cerca (ESC per pulire)"
                                                     type="search"
                                                 />
+                                                {/* Pulsante di reset ricerca */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const searchInput = document.getElementById('search-field');
+                                                        if (searchInput) {
+                                                            searchInput.value = '';
+                                                            filterDataTable('');
+                                                        }
+                                                    }}
+                                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                                                    title="Pulisci ricerca"
+                                                >
+                                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
                                             </div>
                                         </form>
                                     }

@@ -48,6 +48,23 @@ export default async function handler(req, res) {
                                 select: {
                                     nome: true
                                 },
+                            },
+                            AllievoServizi: {
+                                where: {
+                                    tariffa: {
+                                        tipo: {
+                                            tipo_cod: 'guida'
+                                        }
+                                    }
+                                },
+                                select: {
+                                    inizioServizio: true,
+                                    fineServizio: true,
+                                    esito: true
+                                },
+                                orderBy: {
+                                    inizioServizio: 'desc'
+                                }
                             }
                         },
                         orderBy: {
@@ -73,8 +90,6 @@ export default async function handler(req, res) {
                 const newData = result.sort((a, b) => {
                     const nameA = a['AllievoIstruzioni'][0].patente.nome;
                     const nameB = b['AllievoIstruzioni'][0].patente.nome;
-                    // const nameA = a['AllievoIstruzioni'][0].foglioRosaScadenza ? a['AllievoIstruzioni'][0].foglioRosaScadenza : 0;
-                    // const nameB = b['AllievoIstruzioni'][0].foglioRosaScadenza ? b['AllievoIstruzioni'][0].foglioRosaScadenza : 0;
                     if (sorting === 'patenteAsc') {
                         if (nameA < nameB) {
                             return -1;
@@ -82,7 +97,6 @@ export default async function handler(req, res) {
                         if (nameA > nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
                     else {
@@ -92,14 +106,13 @@ export default async function handler(req, res) {
                         if (nameA < nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
-
                 });
                 res.json(newData)
                 return
             }
+            
             if (sorting === 'foglioRosaAsc' || sorting === 'foglioRosaDesc') {
                 const newData = result.sort((a, b) => {
                     const nameA = a['AllievoIstruzioni'][0].foglioRosaScadenza ? a['AllievoIstruzioni'][0].foglioRosaScadenza : 0;
@@ -111,7 +124,6 @@ export default async function handler(req, res) {
                         if (nameA > nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
                     else {
@@ -121,10 +133,8 @@ export default async function handler(req, res) {
                         if (nameA < nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
-
                 });
                 res.json(newData)
                 return
@@ -141,7 +151,6 @@ export default async function handler(req, res) {
                         if (nameA > nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
                     else {
@@ -151,10 +160,8 @@ export default async function handler(req, res) {
                         if (nameA < nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
-
                 });
                 res.json(newData)
                 return
@@ -163,6 +170,7 @@ export default async function handler(req, res) {
             res.json(result)
         }
         else {
+            // Sezione per utenti autoscuola
             const result = await prisma.allievo.findMany({
                 where: {
                     companyId: companyId.isActive,
@@ -190,6 +198,23 @@ export default async function handler(req, res) {
                                 select: {
                                     nome: true
                                 },
+                            },
+                            AllievoServizi: {
+                                where: {
+                                    tariffa: {
+                                        tipo: {
+                                            tipo_cod: 'guida'
+                                        }
+                                    }
+                                },
+                                select: {
+                                    inizioServizio: true,
+                                    fineServizio: true,
+                                    esito: true
+                                },
+                                orderBy: {
+                                    inizioServizio: 'desc'
+                                }
                             }
                         },
                         orderBy: {
@@ -208,14 +233,13 @@ export default async function handler(req, res) {
 
             if (!result) {
                 res.status(200).json({ statusCode: 200, message: 'Nessun allievo presente in archivio' })
+                return
             }
 
             if (sorting === 'patenteAsc' || sorting === 'patenteDesc') {
                 const newData = result.sort((a, b) => {
                     const nameA = a['AllievoIstruzioni'][0].patente.nome;
                     const nameB = b['AllievoIstruzioni'][0].patente.nome;
-                    // const nameA = a['AllievoIstruzioni'][0].foglioRosaScadenza ? a['AllievoIstruzioni'][0].foglioRosaScadenza : 0;
-                    // const nameB = b['AllievoIstruzioni'][0].foglioRosaScadenza ? b['AllievoIstruzioni'][0].foglioRosaScadenza : 0;
                     if (sorting === 'patenteAsc') {
                         if (nameA < nameB) {
                             return -1;
@@ -223,7 +247,6 @@ export default async function handler(req, res) {
                         if (nameA > nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
                     else {
@@ -233,14 +256,13 @@ export default async function handler(req, res) {
                         if (nameA < nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
-
                 });
                 res.json(newData)
                 return
             }
+            
             if (sorting === 'foglioRosaAsc' || sorting === 'foglioRosaDesc') {
                 const newData = result.sort((a, b) => {
                     const nameA = a['AllievoIstruzioni'][0].foglioRosaScadenza ? a['AllievoIstruzioni'][0].foglioRosaScadenza : 0;
@@ -252,7 +274,6 @@ export default async function handler(req, res) {
                         if (nameA > nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
                     else {
@@ -262,10 +283,8 @@ export default async function handler(req, res) {
                         if (nameA < nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
-
                 });
                 res.json(newData)
                 return
@@ -282,7 +301,6 @@ export default async function handler(req, res) {
                         if (nameA > nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
                     else {
@@ -292,10 +310,8 @@ export default async function handler(req, res) {
                         if (nameA < nameB) {
                             return 1;
                         }
-                        // names must be equal
                         return 0;
                     }
-
                 });
                 res.json(newData)
                 return
@@ -304,10 +320,8 @@ export default async function handler(req, res) {
             res.json(result)
         }
 
-
     } catch (err) {
         console.log(err)
+        res.status(500).json({ statusCode: 500, message: 'Errore interno del server' })
     }
-
-
 }

@@ -1,0 +1,10 @@
+[33mae904ac[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature-design-system[m[33m)[m BACKUP: Stato pre-Design System - App funzionante e stabile
+[33m30e5bbf[m[33m ([m[1;32mbackup-pre-upgrade[m[33m)[m BACKUP: File configurazioni e package.json salvati
+[33mcc893de[m BACKUP: Stato pre-aggiornamento Next.js e React - Aggiunto file suggerimenti
+[33m47ebd20[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Major upgrade: Prisma 3.x  6.x + TypeScript 4.x  5.x - Fixes OpenSSL 3.2.x compatibility issue
+[33m2745270[m Try alternative binary targets: native, linux-musl, debian-openssl-3.0.x for OpenSSL 3.2.x compatibility
+[33m4d028b3[m Fix Prisma binary targets issue: remove specific targets to use native engine for OpenSSL 3.2.x compatibility
+[33ma58da3d[m Resolve merge conflicts: update schema.prisma, next.config.js, and add test APIs
+[33mb440032[m Ripristina schema Prisma funzionante - rimuove binary targets e corregge provider
+[33mfbb44fe[m Force Vercel rebuild - Prisma binary targets update
+[33m18207e3[m Fix Prisma: aggiunto native per compatibilità Windows + Vercel

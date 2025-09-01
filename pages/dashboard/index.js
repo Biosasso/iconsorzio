@@ -22,6 +22,15 @@ const getEventIcon = (item) => {
   const esitoLower = (item.esito || '').toLowerCase().trim();
   const tipoServizio = item.tariffa?.tipo?.tipo || '';
   
+  // Controllo se il servizio è passato
+  const now = Math.floor(Date.now() / 1000);
+  const isPast = item.fineServizio < now;
+  
+  // Simbolo per guide passate senza esito (manca informazione) - ESCLUDO ESAMI
+  if (isPast && (!item.esito || item.esito === '') && tipoServizio.toLowerCase().includes('guida')) {
+    return '❓ '; // Punto interrogativo per indicare mancanza di informazione
+  }
+  
   // Per gli ESAMI
   if (tipoServizio.toLowerCase().includes('esame')) {
     // Simbolo per esami assenti
@@ -43,6 +52,9 @@ const getEventIcon = (item) => {
     }
     if (esitoLower === 'guida_annullata_2') {
       return '🔧 '; // Guasto meccanico
+    }
+    if (esitoLower === 'guida_interrotta') {
+      return '⛔ '; // Stop/divieto per guida incompleta
     }
   }
   
@@ -80,7 +92,7 @@ const getEventColor = (item) => {
     // Se esito è vuoto o null
     if (!item.esito || item.esito === '') {
       if (isPast) {
-        return '#3B82F6'; // Blu chiaro per guide effettuate (corrected from #9CA3AF - Grigio chiaro)
+        return '#6B7280'; // Grigio per guide passate senza esito (manca informazione)
       } else {
         return '#93C5FD'; // Azzurro più chiaro per guide future in attesa
       }
@@ -105,6 +117,9 @@ const getEventColor = (item) => {
     }
     if (esitoLower === 'guida_annullata_2') {
       return '#F97316'; // Arancione per guasto meccanico (con simbolo 🔧)
+    }
+    if (esitoLower === 'guida_interrotta') {
+      return '#8B4513'; // Marrone scuro per guida incompleta (con simbolo ⛔)
     }
     
     // Default

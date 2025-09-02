@@ -5,6 +5,11 @@ export default async function handler(req, res) {
 
     const session = await getSession({ req });
 
+    // Controllo sicurezza: sessione valida
+    if (!session || !session.user || !session.user.id) {
+        return res.status(401).json({ statusCode: 401, message: 'Sessione non valida' });
+    }
+
     const { activeTab, sorting } = req.body
 
     try {
@@ -13,6 +18,11 @@ export default async function handler(req, res) {
                 userId: session.user.id
             }
         });
+
+        // Controllo sicurezza: companyId valido
+        if (!companyId) {
+            return res.status(404).json({ statusCode: 404, message: 'Company non trovata' });
+        }
 
         const datiAppartenenza = await prisma.usersCompanies.findFirst({
             where: {

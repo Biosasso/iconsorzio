@@ -1,7 +1,7 @@
 {
   "private": true,
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "next dev",
@@ -27,7 +27,7 @@
     "nodemailer": "^6.7.0",
     "randomstring": "^1.2.1",
     "react": "^18.2.0",
-    "react-datepicker": "^4.6.0",
+    "react-datepicker": "^4.25.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.1.1",
     "swr": "^2.0.3",

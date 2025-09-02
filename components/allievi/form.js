@@ -857,6 +857,7 @@ export default function Form({
                                                         <option value={'presente'}>Presente (solo per le guide)</option>
                                                         <option value={'guida_annullata_1'}>Guida annullata per maltempo</option>
                                                         <option value={'guida_annullata_2'}>Guida annullata per guasto meccanico</option>
+                                                        <option value={'guida_incompleta'}>Guida incompleta</option>
                                                     </select>
                                                 </div>
                                                 <div className="col-span-3 sm:col-span-4">

@@ -53,6 +53,9 @@ const getEventIcon = (item) => {
     if (esitoLower === 'guida_annullata_2') {
       return '🔧 '; // Guasto meccanico
     }
+    if (esitoLower === 'guida_incompleta') {
+      return '⛔ '; // Guida incompleta
+    }
   }
   
   return ''; // Nessun simbolo per situazioni normali
@@ -114,6 +117,9 @@ const getEventColor = (item) => {
     }
     if (esitoLower === 'guida_annullata_2') {
       return '#F97316'; // Arancione per guasto meccanico (con simbolo 🔧)
+    }
+    if (esitoLower === 'guida_incompleta') {
+      return '#8B4513'; // Marrone scuro per guida incompleta
     }
     
     // Default

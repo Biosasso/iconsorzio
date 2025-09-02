@@ -32,6 +32,15 @@ const getEventIcon = (item) => {
   
   // Per le GUIDE
   if (tipoServizio.toLowerCase().includes('guida')) {
+    // Controllo se la guida è passata o futura
+    const now = Math.floor(Date.now() / 1000); // Timestamp attuale in secondi
+    const isPast = item.fineServizio < now; // La guida è finita
+    
+    // Se esito è vuoto o null E la guida è passata
+    if ((!item.esito || item.esito === '') && isPast) {
+      return '❓ '; // Punto interrogativo per guide passate senza esito
+    }
+    
     // Simbolo per guide assenti normali
     if (esitoLower.includes('assente')) {
       return '⚠️ ';
@@ -80,7 +89,7 @@ const getEventColor = (item) => {
     // Se esito è vuoto o null
     if (!item.esito || item.esito === '') {
       if (isPast) {
-        return '#3B82F6'; // Blu chiaro per guide effettuate (corrected from #9CA3AF - Grigio chiaro)
+        return '#6B7280'; // Grigio per guide passate senza esito
       } else {
         return '#93C5FD'; // Azzurro più chiaro per guide future in attesa
       }

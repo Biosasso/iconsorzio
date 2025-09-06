@@ -1,0 +1,10 @@
+[33m5629c37[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;33mtag: [m[1;33mv1.4.0-stable-working-2025-09-02[m[33m, [m[1;33mtag: [m[1;33mv1.3.0-pre-servizi-grigi-20250903-0001[m[33m)[m TEST: Aggiunta API per testare connessione database su Vercel
+[33m8891604[m FIX COMPLETO: Allineato Node.js 18, aggiornato react-datepicker, aggiunti controlli sicurezza API, vercel.json corretto
+[33m2684ee7[m FIX: Rimossa sezione functions problematica da vercel.json - Deploy Vercel
+[33mdf80c4e[m  BACKUP COMPLETO - Tabella allievi funzionante con colonne ULTIMA GUIDA e PROSSIMA GUIDA - API ripristinata - Dependencies reinstallate
+[33mae904ac[m BACKUP: Stato pre-Design System - App funzionante e stabile
+[33m30e5bbf[m[33m ([m[1;32mbackup-pre-upgrade[m[33m)[m BACKUP: File configurazioni e package.json salvati
+[33mcc893de[m BACKUP: Stato pre-aggiornamento Next.js e React - Aggiunto file suggerimenti
+[33m47ebd20[m Major upgrade: Prisma 3.x  6.x + TypeScript 4.x  5.x - Fixes OpenSSL 3.2.x compatibility issue
+[33m2745270[m Try alternative binary targets: native, linux-musl, debian-openssl-3.0.x for OpenSSL 3.2.x compatibility
+[33m4d028b3[m Fix Prisma binary targets issue: remove specific targets to use native engine for OpenSSL 3.2.x compatibility

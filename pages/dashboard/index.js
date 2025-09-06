@@ -32,9 +32,23 @@ const getEventIcon = (item) => {
   
   // Per le GUIDE
   if (tipoServizio.toLowerCase().includes('guida')) {
+    // Controllo se la guida è passata o futura
+    const now = Math.floor(Date.now() / 1000); // Timestamp attuale in secondi
+    const isPast = item.fineServizio < now; // La guida è finita
+    
+    // PUNTO INTERROGATIVO ROSSO per guide effettuate e non valutate
+    if (isPast && (!item.esito || item.esito === '')) {
+      return '❓ '; // Punto interrogativo rosso per guide effettuate e non valutate
+    }
+    
     // Simbolo per guide assenti normali
     if (esitoLower.includes('assente')) {
       return '⚠️ ';
+    }
+    
+    // Simbolo per guide incomplete - USO VALORI ESATTI
+    if (esitoLower === 'guida_incompleta') {
+      return '⏸️ '; // Simbolo di pausa/interruzione per guide incomplete
     }
     
     // Simboli per guide annullate - USO VALORI ESATTI
@@ -80,7 +94,7 @@ const getEventColor = (item) => {
     // Se esito è vuoto o null
     if (!item.esito || item.esito === '') {
       if (isPast) {
-        return '#3B82F6'; // Blu chiaro per guide effettuate (corrected from #9CA3AF - Grigio chiaro)
+        return '#6B7280'; // Grigio scuro per guide effettuate e non valutate
       } else {
         return '#93C5FD'; // Azzurro più chiaro per guide future in attesa
       }
@@ -97,6 +111,11 @@ const getEventColor = (item) => {
     // Check per guide assenti (solo normali, grigio)
     if (esitoLower.includes('assente')) {
       return '#374151'; // Grigio scuro per guide assenti normali
+    }
+    
+    // Check per guide incomplete - USO VALORI ESATTI
+    if (esitoLower === 'guida_incompleta') {
+      return '#D97706'; // Marrone chiaro per guide incomplete
     }
     
     // Check per guide annullate - USO VALORI ESATTI

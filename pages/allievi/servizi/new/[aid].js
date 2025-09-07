@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import NotificationContext from '@/store/notifications'
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import fetcher, { fetcherWithData } from '@/lib/fetch'
 import Layout from '@/components/layout/layout';
 import Form from '@/components/allievi/form';
@@ -185,6 +185,11 @@ export default function ServiziCrea({ aid }) {
                 notify.success.set({
                     title: result.title
                 })
+                // Revalida i dati per aggiornare la cache
+                mutate(`/api/allievi/servizi/list?allievoId=${aid}`);
+                // Revalida la dashboard
+                mutate('/api/dashboard/getEventsForCalendar');
+                mutate('/api/dashboard/getFilteredList');
                 setTimeout(() => {
                     router.push(`/allievi/edit/${aid}?identifier=${result.id}#servizi`)
                 }, 500)

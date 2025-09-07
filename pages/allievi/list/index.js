@@ -23,7 +23,7 @@ export default function Allievi() {
 
     const [activeTab, setActiveTab] = useState('#active');
 
-    const [sorting, setSorting] = useState('foglioRosaAsc');
+    const [sorting, setSorting] = useState({ cognome: 'asc' });
 
     const tabs = [
         { name: 'Allievi con istruzioni in corso', href: '#active', current: activeTab, count: count ? count?.active : null },

@@ -50,8 +50,54 @@ export default function ServiziList({
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
-                        {(tableData && tableData.length > 0) ? tableData.map((item) => (
-                            <tr key={item.id} className={`${isoNow - item.inizioServizio > 0 && 'bg-gray-300'}${selectedRow === item.id ? notModified ? 'bg-yellow-100' : 'bg-green-100' : ''}`}>
+                        {(tableData && tableData.length > 0) ? tableData.map((item) => {
+                            // Calcola il colore della riga basato sulla valutazione
+                            let rowColor = '';
+                            if (item.tariffa?.tipo?.tipo?.toLowerCase().includes('guida')) {
+                                try {
+                                    const esitoData = JSON.parse(item.esito || '{}');
+                                    if (esitoData.tipo === 'presente' && esitoData.valutazioni) {
+                                        const valutazioni = [
+                                            esitoData.valutazioni.teoria || 0,
+                                            esitoData.valutazioni.lento || 0,
+                                            esitoData.valutazioni.veloce || 0,
+                                            esitoData.valutazioni.guida || 0
+                                        ];
+                                        const fasiEffettuate = valutazioni.filter(v => v > 0);
+                                        const media = fasiEffettuate.length > 0 ? 
+                                            (fasiEffettuate.reduce((a, b) => a + b, 0) / fasiEffettuate.length) : 0;
+                                        
+                                        // 7 livelli di colore con bordi - TONI PIÙ SATURI
+                                        if (media >= 4.6) rowColor = 'bg-green-400 border-2 border-green-700'; // OTTIMO
+                                        else if (media >= 4.1) rowColor = 'bg-green-300 border-2 border-green-600'; // MOLTO BUONO
+                                        else if (media >= 3.3) rowColor = 'bg-green-200 border-2 border-green-500'; // BUONO
+                                        else if (media >= 2.6) rowColor = 'bg-yellow-300 border-2 border-yellow-600'; // SUFFICIENTE
+                                        else if (media >= 1.9) rowColor = 'bg-orange-300 border-2 border-orange-600'; // SCARSO
+                                        else if (media >= 1.3) rowColor = 'bg-red-300 border-2 border-red-600'; // INSUFFICIENTE
+                                        else if (media > 0) rowColor = 'bg-red-400 border-2 border-red-700'; // MOLTO INSUFFICIENTE
+                                    } else if (esitoData.tipo === 'presente') {
+                                        rowColor = 'bg-gray-200'; // Presente ma non valutato
+                                    } else {
+                                        rowColor = 'bg-gray-200'; // Altri esiti
+                                    }
+                                } catch (e) {
+                                    if (item.esito === 'presente') {
+                                        rowColor = 'bg-gray-200'; // Presente ma non valutato
+                                    } else {
+                                        rowColor = 'bg-gray-200'; // Altri esiti
+                                    }
+                                }
+                            } else {
+                                rowColor = 'bg-gray-200'; // Non guida
+                            }
+                            
+                            // Guide future rimangono bianche
+                            if (isoNow - item.inizioServizio <= 0) {
+                                rowColor = 'bg-white';
+                            }
+                            
+                            return (
+                            <tr key={item.id} className={`${rowColor}${selectedRow === item.id ? notModified ? 'bg-yellow-200' : 'bg-green-200' : ''}`}>
 
                                 <td className="px-3 py-3 max-w-0 whitespace-nowrap text-sm font-medium text-gray-900">
 
@@ -115,7 +161,6 @@ export default function ServiziList({
                                         <Link href={`${link}/${item.id}?allievoId=${allievoId}${isoNow - item.inizioServizio > 0 ? '&readonly=true' : '&readonly=false'}`} className="truncate hover:text-gray-600">
                                             {(() => {
                                                 try {
-                                                    // Prova a parsare il JSON dal campo esito
                                                     const esitoData = JSON.parse(item.esito || '{}');
                                                     if (esitoData.tipo) {
                                                         return esitoData.tipo;
@@ -131,12 +176,9 @@ export default function ServiziList({
                                 </td>
                                 <td className="px-3 py-3 max-w-0 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {(() => {
-                                        // Calcola valutazione solo per servizi guida con esito presente
                                         if (item.tariffa?.tipo?.tipo?.toLowerCase().includes('guida')) {
                                             try {
-                                                // Prova a parsare il JSON dal campo esito
                                                 const esitoData = JSON.parse(item.esito || '{}');
-                                                
                                                 if (esitoData.tipo === 'presente' && esitoData.valutazioni) {
                                                     const valutazioni = [
                                                         esitoData.valutazioni.teoria || 0,
@@ -144,25 +186,17 @@ export default function ServiziList({
                                                         esitoData.valutazioni.veloce || 0,
                                                         esitoData.valutazioni.guida || 0
                                                     ];
-                                                    
                                                     const fasiEffettuate = valutazioni.filter(v => v > 0);
                                                     const media = fasiEffettuate.length > 0 ? 
                                                         (fasiEffettuate.reduce((a, b) => a + b, 0) / fasiEffettuate.length).toFixed(1) : 0;
                                                     
-                                                    // Colori basati sulla media
-                                                    let colore = 'text-gray-500'; // Default
-                                                    if (media >= 4) colore = 'text-green-600';
-                                                    else if (media >= 3) colore = 'text-yellow-600';
-                                                    else if (media > 0) colore = 'text-red-600';
-                                                    
                                                     return (
-                                                        <div className={`${colore} font-medium`}>
+                                                        <div className="font-medium text-gray-900">
                                                             {media > 0 ? `${media}/5 (${fasiEffettuate.length}/4 fasi)` : 'Non valutato'}
                                                         </div>
                                                     );
                                                 }
                                             } catch (e) {
-                                                // Se non è JSON valido, controlla se è "presente" normale
                                                 if (item.esito === 'presente') {
                                                     return <div className="text-gray-400">Presente (non valutato)</div>;
                                                 }
@@ -208,8 +242,8 @@ export default function ServiziList({
                                 </td>
 
                             </tr>
-                        ))
-                            :
+                            );
+                        }) : (
                             <tr>
                                 <td className=" py-3 max-w-0 w-full whitespace-nowrap text-sm font-medium text-gray-900">
                                     <div className="flex items-center space-x-3 lg:pl-2">
@@ -221,7 +255,7 @@ export default function ServiziList({
                                     </div>
                                 </td>
                             </tr>
-                        }
+                        )}
                     </tbody>
                 </table>
             </div>

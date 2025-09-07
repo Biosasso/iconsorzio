@@ -5,13 +5,12 @@ export default async function handler(req, res) {
     const data = req.body;
 
     try {
-        // Gestione valutazioni per servizi guida con esito presente
         let processedData = { ...data };
         
-        if (data.esito === 'presente' && data.valutazioneTeoria !== undefined) {
-            // Crea oggetto valutazioni
+        // Se ci sono valutazioni, salva come JSON nel campo esito
+        if (data.valutazioneTeoria !== undefined || data.valutazioneLento !== undefined || data.valutazioneVeloce !== undefined || data.valutazioneGuida !== undefined) {
             const valutazioni = {
-                tipo: 'presente',
+                tipo: data.esito || 'presente',
                 valutazioni: {
                     teoria: data.valutazioneTeoria || 0,
                     lento: data.valutazioneLento || 0,
@@ -29,7 +28,7 @@ export default async function handler(req, res) {
             delete processedData.valutazioneVeloce;
             delete processedData.valutazioneGuida;
         }
-
+        
         const result = await prisma.allievoServizio.update({
             data: processedData,
             where: {

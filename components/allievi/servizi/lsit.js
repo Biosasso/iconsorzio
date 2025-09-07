@@ -38,6 +38,9 @@ export default function ServiziList({
                                 <span className="lg:pl-2">Esito</span>
                             </th>
                             <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <span className="lg:pl-2">Valutazione</span>
+                            </th>
+                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <span className="lg:pl-2">Istruttore</span>
                             </th>
                             <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -114,6 +117,36 @@ export default function ServiziList({
                                         </Link>
                                     </div>
 
+                                </td>
+                                <td className="px-3 py-3 max-w-0 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {(() => {
+                                        // Calcola valutazione solo per servizi guida con esito presente
+                                        if (item.tariffa?.tipo?.tipo?.toLowerCase().includes('guida') && item.esito === 'presente') {
+                                            const valutazioni = [
+                                                item.valutazioneTeoria || 0,
+                                                item.valutazioneLento || 0,
+                                                item.valutazioneVeloce || 0,
+                                                item.valutazioneGuida || 0
+                                            ];
+                                            
+                                            const fasiEffettuate = valutazioni.filter(v => v > 0);
+                                            const media = fasiEffettuate.length > 0 ? 
+                                                (fasiEffettuate.reduce((a, b) => a + b, 0) / fasiEffettuate.length).toFixed(1) : 0;
+                                            
+                                            // Colori basati sulla media
+                                            let colore = 'text-gray-500'; // Default
+                                            if (media >= 4) colore = 'text-green-600';
+                                            else if (media >= 3) colore = 'text-yellow-600';
+                                            else if (media > 0) colore = 'text-red-600';
+                                            
+                                            return (
+                                                <div className={`${colore} font-medium`}>
+                                                    {media > 0 ? `${media}/5 (${fasiEffettuate.length}/4 fasi)` : 'Non valutato'}
+                                                </div>
+                                            );
+                                        }
+                                        return <div className="text-gray-400">-</div>;
+                                    })()}
                                 </td>
                                 <td className="px-3 py-3 max-w-0 whitespace-nowrap text-sm font-medium text-gray-900">
 

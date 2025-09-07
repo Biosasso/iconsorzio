@@ -190,6 +190,26 @@ export default function Form({
         }
     }, [])
 
+    // Carica valutazioni dal JSON quando serviziData cambia
+    useEffect(() => {
+        if (serviziData?.esito) {
+            try {
+                const esitoData = JSON.parse(serviziData.esito);
+                if (esitoData.tipo === 'presente' && esitoData.valutazioni) {
+                    setServiziData(prev => ({
+                        ...prev,
+                        valutazioneTeoria: esitoData.valutazioni.teoria || 0,
+                        valutazioneLento: esitoData.valutazioni.lento || 0,
+                        valutazioneVeloce: esitoData.valutazioni.veloce || 0,
+                        valutazioneGuida: esitoData.valutazioni.guida || 0
+                    }));
+                }
+            } catch (e) {
+                // Se non è JSON valido, non fare nulla
+            }
+        }
+    }, [serviziData?.esito])
+
     useEffect(() => {
 
         if (serviziData?.allievoIStruzioneId && istruzioni) {

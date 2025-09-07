@@ -113,7 +113,18 @@ export default function ServiziList({
                                             aria-hidden="true"
                                         />
                                         <Link href={`${link}/${item.id}?allievoId=${allievoId}${isoNow - item.inizioServizio > 0 ? '&readonly=true' : '&readonly=false'}`} className="truncate hover:text-gray-600">
-                                            {item.esito}
+                                            {(() => {
+                                                try {
+                                                    // Prova a parsare il JSON dal campo esito
+                                                    const esitoData = JSON.parse(item.esito || '{}');
+                                                    if (esitoData.tipo) {
+                                                        return esitoData.tipo;
+                                                    }
+                                                } catch (e) {
+                                                    // Se non è JSON valido, mostra il valore originale
+                                                }
+                                                return item.esito || '-';
+                                            })()}
                                         </Link>
                                     </div>
 

@@ -121,29 +121,41 @@ export default function ServiziList({
                                 <td className="px-3 py-3 max-w-0 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {(() => {
                                         // Calcola valutazione solo per servizi guida con esito presente
-                                        if (item.tariffa?.tipo?.tipo?.toLowerCase().includes('guida') && item.esito === 'presente') {
-                                            const valutazioni = [
-                                                item.valutazioneTeoria || 0,
-                                                item.valutazioneLento || 0,
-                                                item.valutazioneVeloce || 0,
-                                                item.valutazioneGuida || 0
-                                            ];
-                                            
-                                            const fasiEffettuate = valutazioni.filter(v => v > 0);
-                                            const media = fasiEffettuate.length > 0 ? 
-                                                (fasiEffettuate.reduce((a, b) => a + b, 0) / fasiEffettuate.length).toFixed(1) : 0;
-                                            
-                                            // Colori basati sulla media
-                                            let colore = 'text-gray-500'; // Default
-                                            if (media >= 4) colore = 'text-green-600';
-                                            else if (media >= 3) colore = 'text-yellow-600';
-                                            else if (media > 0) colore = 'text-red-600';
-                                            
-                                            return (
-                                                <div className={`${colore} font-medium`}>
-                                                    {media > 0 ? `${media}/5 (${fasiEffettuate.length}/4 fasi)` : 'Non valutato'}
-                                                </div>
-                                            );
+                                        if (item.tariffa?.tipo?.tipo?.toLowerCase().includes('guida')) {
+                                            try {
+                                                // Prova a parsare il JSON dal campo esito
+                                                const esitoData = JSON.parse(item.esito || '{}');
+                                                
+                                                if (esitoData.tipo === 'presente' && esitoData.valutazioni) {
+                                                    const valutazioni = [
+                                                        esitoData.valutazioni.teoria || 0,
+                                                        esitoData.valutazioni.lento || 0,
+                                                        esitoData.valutazioni.veloce || 0,
+                                                        esitoData.valutazioni.guida || 0
+                                                    ];
+                                                    
+                                                    const fasiEffettuate = valutazioni.filter(v => v > 0);
+                                                    const media = fasiEffettuate.length > 0 ? 
+                                                        (fasiEffettuate.reduce((a, b) => a + b, 0) / fasiEffettuate.length).toFixed(1) : 0;
+                                                    
+                                                    // Colori basati sulla media
+                                                    let colore = 'text-gray-500'; // Default
+                                                    if (media >= 4) colore = 'text-green-600';
+                                                    else if (media >= 3) colore = 'text-yellow-600';
+                                                    else if (media > 0) colore = 'text-red-600';
+                                                    
+                                                    return (
+                                                        <div className={`${colore} font-medium`}>
+                                                            {media > 0 ? `${media}/5 (${fasiEffettuate.length}/4 fasi)` : 'Non valutato'}
+                                                        </div>
+                                                    );
+                                                }
+                                            } catch (e) {
+                                                // Se non è JSON valido, controlla se è "presente" normale
+                                                if (item.esito === 'presente') {
+                                                    return <div className="text-gray-400">Presente (non valutato)</div>;
+                                                }
+                                            }
                                         }
                                         return <div className="text-gray-400">-</div>;
                                     })()}

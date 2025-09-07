@@ -860,6 +860,88 @@ export default function Form({
                                                         <option value={'guida_annullata_2'}>Guida annullata per guasto meccanico</option>
                                                     </select>
                                                 </div>
+                                                
+                                                {/* Campi valutazione - solo per servizi guida con esito presente */}
+                                                {serviziData?.tariffa?.tipo?.tipo?.toLowerCase().includes('guida') && serviziData?.esito === 'presente' && (
+                                                    <>
+                                                        <div className="col-span-3 sm:col-span-4">
+                                                            <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Valutazione Allievo</h3>
+                                                        </div>
+                                                        
+                                                        <div className="col-span-1 sm:col-span-1">
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Teoria
+                                                            </label>
+                                                            <select
+                                                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                                value={serviziData.valutazioneTeoria || 0}
+                                                                onChange={(e) => setServiziData({ ...serviziData, valutazioneTeoria: parseInt(e.target.value) })}
+                                                            >
+                                                                <option value={0}>Non effettuata</option>
+                                                                <option value={1}>1 - Insufficiente</option>
+                                                                <option value={2}>2 - Sufficiente</option>
+                                                                <option value={3}>3 - Buono</option>
+                                                                <option value={4}>4 - Molto Buono</option>
+                                                                <option value={5}>5 - Eccellente</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div className="col-span-1 sm:col-span-1">
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Lento
+                                                            </label>
+                                                            <select
+                                                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                                value={serviziData.valutazioneLento || 0}
+                                                                onChange={(e) => setServiziData({ ...serviziData, valutazioneLento: parseInt(e.target.value) })}
+                                                            >
+                                                                <option value={0}>Non effettuata</option>
+                                                                <option value={1}>1 - Insufficiente</option>
+                                                                <option value={2}>2 - Sufficiente</option>
+                                                                <option value={3}>3 - Buono</option>
+                                                                <option value={4}>4 - Molto Buono</option>
+                                                                <option value={5}>5 - Eccellente</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div className="col-span-1 sm:col-span-1">
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Veloce
+                                                            </label>
+                                                            <select
+                                                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                                value={serviziData.valutazioneVeloce || 0}
+                                                                onChange={(e) => setServiziData({ ...serviziData, valutazioneVeloce: parseInt(e.target.value) })}
+                                                            >
+                                                                <option value={0}>Non effettuata</option>
+                                                                <option value={1}>1 - Insufficiente</option>
+                                                                <option value={2}>2 - Sufficiente</option>
+                                                                <option value={3}>3 - Buono</option>
+                                                                <option value={4}>4 - Molto Buono</option>
+                                                                <option value={5}>5 - Eccellente</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div className="col-span-1 sm:col-span-1">
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Guida su Strada
+                                                            </label>
+                                                            <select
+                                                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                                value={serviziData.valutazioneGuida || 0}
+                                                                onChange={(e) => setServiziData({ ...serviziData, valutazioneGuida: parseInt(e.target.value) })}
+                                                            >
+                                                                <option value={0}>Non effettuata</option>
+                                                                <option value={1}>1 - Insufficiente</option>
+                                                                <option value={2}>2 - Sufficiente</option>
+                                                                <option value={3}>3 - Buono</option>
+                                                                <option value={4}>4 - Molto Buono</option>
+                                                                <option value={5}>5 - Eccellente</option>
+                                                            </select>
+                                                        </div>
+                                                    </>
+                                                )}
+                                                
                                                 <div className="col-span-3 sm:col-span-4">
                                                     <div className="bg-white shadow  py-5 sm:rounded-lg sm:p-1">
                                                         <div className="md:grid md:grid-cols-1">

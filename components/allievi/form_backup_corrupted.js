@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import useSWR from 'swr';
 import { fetcherWithData, fetcherDisponibilitaVeicoli } from '@/lib/fetch'
 import { DateTime } from 'datetime-next';
@@ -201,44 +201,6 @@ export default function Form({
         }
 
     }, [istruzioni])
-
-    // Carica valutazioni e appunti dal JSON - useLayoutEffect per sincronizzazione immediata
-    useLayoutEffect(() => {
-        // Controlla prima data (dati dall'API), poi serviziData (stato locale)
-        const esitoToCheck = data?.esito || serviziData?.esito;
-        
-        if (esitoToCheck && typeof esitoToCheck === 'string' && esitoToCheck.startsWith('{')) {
-            try {
-                const esitoData = JSON.parse(esitoToCheck);
-                
-                if (esitoData.tipo) {
-                    const updateData = {
-                        esito: esitoData.tipo // Carica sempre l'esito dal JSON
-                    };
-                    
-                    // Carica valutazioni se presenti
-                    if (esitoData.valutazioni) {
-                        updateData.valutazioneTeoria = esitoData.valutazioni.teoria || 0;
-                        updateData.valutazioneLento = esitoData.valutazioni.lento || 0;
-                        updateData.valutazioneVeloce = esitoData.valutazioni.veloce || 0;
-                        updateData.valutazioneGuida = esitoData.valutazioni.guida || 0;
-                    }
-                    
-                    // Carica appunti se presenti
-                    if (esitoData.appunti !== undefined) {
-                        updateData.appunti = esitoData.appunti || '';
-                    }
-                    
-                    setServiziData(prev => ({
-                        ...prev,
-                        ...updateData
-                    }));
-                }
-            } catch (e) {
-                // Se non è JSON valido, non fare nulla
-            }
-        }
-    }, [data, serviziData?.esito]) // Dipendenze corrette: data per API, serviziData.esito per stato locale
 
     const handleChange = (e) => {
         const inizio = Math.floor(new Date(e) / 1000)
@@ -898,135 +860,6 @@ export default function Form({
                                                         <option value={'guida_annullata_2'}>Guida annullata per guasto meccanico</option>
                                                     </select>
                                                 </div>
-                                                
-                                                {/* Card Valutazioni - Sempre attiva per servizi guida */}
-                                                {serviziData?.tariffa?.tipo?.tipo?.toLowerCase().includes('guida') && (
-                                                    <div className="col-span-3 sm:col-span-4">
-                                                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg shadow-lg p-6">
-                                                            {/* Header Card */}
-                                                            <div className="flex items-center mb-6">
-                                                                <div className="flex-shrink-0">
-                                                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                                                                        <span className="text-white font-bold text-sm">📊</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="ml-3">
-                                                                    <h3 className="text-lg font-semibold text-gray-900">Valutazione Allievo</h3>
-                                                                    <p className="text-sm text-gray-600">Valuta le 4 fasi della guida</p>
-                                                                    {serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta' && (
-                                                                        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
-                                                                            <p className="text-xs text-yellow-700">
-                                                                                ⚠️ Le valutazioni sono valide solo per esito "Presente" o "Guida incompleta"
-                                                                            </p>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Prima riga: Teoria, Lento, Veloce */}
-                                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                                                <div>
-                                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Teoria</label>
-                                                                    <select
-                                                                        className={`w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm ${serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                                                                        value={serviziData.valutazioneTeoria || 0}
-                                                                        onChange={(e) => setServiziData({ ...serviziData, valutazioneTeoria: parseInt(e.target.value) })}
-                                                                        disabled={serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta'}
-                                                                    >
-                                                                        <option value={0}>Non effettuata</option>
-                                                                        <option value={1}>INSUFFICIENTE</option>
-                                                                        <option value={2}>SCARSO</option>
-                                                                        <option value={3}>SUFFICIENTE</option>
-                                                                        <option value={4}>BUONO</option>
-                                                                        <option value={5}>OTTIMO</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Lento</label>
-                                                                    <select
-                                                                        className={`w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm ${serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                                                                        value={serviziData.valutazioneLento || 0}
-                                                                        onChange={(e) => setServiziData({ ...serviziData, valutazioneLento: parseInt(e.target.value) })}
-                                                                        disabled={serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta'}
-                                                                    >
-                                                                        <option value={0}>Non effettuata</option>
-                                                                        <option value={1}>INSUFFICIENTE</option>
-                                                                        <option value={2}>SCARSO</option>
-                                                                        <option value={3}>SUFFICIENTE</option>
-                                                                        <option value={4}>BUONO</option>
-                                                                        <option value={5}>OTTIMO</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Veloce</label>
-                                                                    <select
-                                                                        className={`w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm ${serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                                                                        value={serviziData.valutazioneVeloce || 0}
-                                                                        onChange={(e) => setServiziData({ ...serviziData, valutazioneVeloce: parseInt(e.target.value) })}
-                                                                        disabled={serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta'}
-                                                                    >
-                                                                        <option value={0}>Non effettuata</option>
-                                                                        <option value={1}>INSUFFICIENTE</option>
-                                                                        <option value={2}>SCARSO</option>
-                                                                        <option value={3}>SUFFICIENTE</option>
-                                                                        <option value={4}>BUONO</option>
-                                                                        <option value={5}>OTTIMO</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Seconda riga: Guida su Strada */}
-                                                            <div className="mb-4">
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Guida su Strada</label>
-                                                                <select
-                                                                    className={`w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm ${serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                                                                    value={serviziData.valutazioneGuida || 0}
-                                                                    onChange={(e) => setServiziData({ ...serviziData, valutazioneGuida: parseInt(e.target.value) })}
-                                                                    disabled={serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta'}
-                                                                >
-                                                                    <option value={0}>Non effettuata</option>
-                                                                    <option value={1}>INSUFFICIENTE</option>
-                                                                    <option value={2}>SCARSO</option>
-                                                                    <option value={3}>SUFFICIENTE</option>
-                                                                    <option value={4}>BUONO</option>
-                                                                    <option value={5}>OTTIMO</option>
-                                                                </select>
-                                                            </div>
-
-                                                            {/* Campo Appunti */}
-                                                            <div className="border-t border-blue-200 pt-4">
-                                                                <div className="flex items-center mb-2">
-                                                                    <div className="flex-shrink-0">
-                                                                        <span className="text-blue-500 text-sm">📝</span>
-                                                                    </div>
-                                                                    <label className="ml-2 block text-sm font-medium text-gray-700">
-                                                                        Appunti (max 200 caratteri)
-                                                                    </label>
-                                                                </div>
-                                                                <textarea
-                                                                    className={`w-full px-3 py-2 text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm resize-none ${serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                                                                    rows={3}
-                                                                    maxLength={200}
-                                                                    value={serviziData.appunti || ''}
-                                                                    onChange={(e) => setServiziData({ ...serviziData, appunti: e.target.value })}
-                                                                    placeholder="Inserisci note o osservazioni sull'allievo..."
-                                                                    disabled={serviziData?.esito !== 'presente' && serviziData?.esito !== 'guida_incompleta'}
-                                                                />
-                                                                <div className="flex justify-between items-center mt-1">
-                                                                    <span className="text-xs text-gray-500">
-                                                                        Caratteri: {serviziData.appunti?.length || 0}/200
-                                                                    </span>
-                                                                    {serviziData.appunti?.length > 180 && (
-                                                                        <span className="text-xs text-orange-500 font-medium">
-                                                                            Quasi al limite!
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                
                                                 <div className="col-span-3 sm:col-span-4">
                                                     <div className="bg-white shadow  py-5 sm:rounded-lg sm:p-1">
                                                         <div className="md:grid md:grid-cols-1">
@@ -1055,4 +888,790 @@ export default function Form({
             </div>
         </>
     )
+}
+
+                                                    placeholder=""
+
+                                                />
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    }
+
+                    {/* SCHEDA 2 */}
+
+                    {step === 'istruzione' &&
+
+                        <>
+
+                            <div className="md:grid md:grid-cols-3 md:gap-6">
+
+                                <div className="md:col-span-1">
+
+                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{router.asPath.includes('new') ? 'Inserisci' : 'Modifica'} l'istruzione</h3>
+
+                                    <p className="mt-1 text-sm text-gray-500">
+
+                                        L'istruzione dell'allievo fa riferimento al motivo dell'iscrizione, quindi i dati del corso o del folgio rosa
+
+                                    </p>
+
+                                </div>
+
+                                <div className="mt-5 md:mt-0 md:col-span-2">
+
+                                    <form className="space-y-6" action="#" method="POST">
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
+
+                                            <div className="col-span-3 sm:col-span-4">
+
+                                                <label htmlFor="patenteId" className="block text-sm font-medium text-gray-700">
+
+                                                    Seleziona patente
+
+                                                </label>
+
+                                                <select
+
+                                                    name="patenteId"
+
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                    value={istruzioneData?.patenteId ? istruzioneData.patenteId : ''}
+
+                                                    onChange={(e) => setIstruzioneData({ ...istruzioneData, patenteId: e.target.options[e.target.selectedIndex].value })}
+
+                                                >
+
+                                                    <option value={'Seleziona'}>Seleziona...</option>
+
+                                                    {patenti?.map(item => (
+
+                                                        <option key={item.id} value={item.id}>{item.nome}</option>
+
+                                                    ))}
+
+                                                </select>
+
+                                            </div>
+
+                                            <div className="col-span-3 sm:col-span-4">
+
+                                                <label htmlFor="dataEsame" className="block text-sm font-medium text-gray-700">
+
+                                                    Data esame (Se corso di rinnovo inserire la data di fine corso)
+
+                                                </label>
+
+                                                <div className="mt-1 relative rounded-md shadow-sm">
+
+                                                    <DatePicker
+
+                                                        locale={'it'}
+
+                                                        selected={istruzioneData?.dataEsame ? new Date(istruzioneData.dataEsame) : ''}
+
+                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, dataEsame: e })}
+
+                                                        dateFormat="P"
+
+                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+
+                                                    />
+
+                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+
+                                                        <CalendarIcon className="h-5 w-5 text-gray-700 z-1" aria-hidden="true" />
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div className="col-span-3 sm:col-span-2">
+
+                                                <label htmlFor="foglioRosaRilascio" className="block text-sm font-medium text-gray-700">
+
+                                                    Rilascio foglio rosa
+
+                                                </label>
+
+                                                <div className="mt-1 relative rounded-md shadow-sm">
+
+                                                    <DatePicker
+
+                                                        locale={'it'}
+
+                                                        selected={istruzioneData?.foglioRosaRilascio ? new Date(istruzioneData.foglioRosaRilascio) : ''}
+
+                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, foglioRosaRilascio: e })}
+
+                                                        dateFormat="P"
+
+                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+
+                                                    />
+
+                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+
+                                                        <CalendarIcon className="h-5 w-5 text-gray-700 z-1" aria-hidden="true" />
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div className="col-span-3 sm:col-span-2">
+
+                                                <label htmlFor="foglioRosaScadenza" className="block text-sm font-medium text-gray-700">
+
+                                                    Scadenza foglio rosa
+
+                                                </label>
+
+                                                <div className="mt-1 relative rounded-md shadow-sm">
+
+                                                    <DatePicker
+
+                                                        locale={'it'}
+
+                                                        selected={istruzioneData?.foglioRosaScadenza ? new Date(istruzioneData.foglioRosaScadenza) : ''}
+
+                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, foglioRosaScadenza: e })}
+
+                                                        dateFormat="P"
+
+                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+
+                                                    />
+
+                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+
+                                                        <CalendarIcon className="h-5 w-5 text-gray-700 z-1" aria-hidden="true" />
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+
+                                            <div className="col-span-3 sm:col-span-4">
+
+                                                <label htmlFor="marcaOperativa" className="block text-sm font-medium text-gray-700">
+
+                                                    Marca Operativa                                        </label>
+
+                                                <div className="mt-1 flex rounded-md shadow-sm">
+
+                                                    <input
+
+                                                        type="text"
+
+                                                        name="marcaOperativa"
+
+                                                        value={istruzioneData?.marcaOperativa ? istruzioneData.marcaOperativa : ''}
+
+                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, marcaOperativa: e.target.value })}
+
+                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+
+                                                        placeholder=""
+
+                                                    />
+
+                                                </div>
+
+                                            </div>
+
+                                            <div className="col-span-3 sm:col-span-4">
+
+                                                <label htmlFor="codiceStatino" className="block text-sm font-medium text-gray-700">
+
+                                                    Codice Statino
+
+                                                </label>
+
+                                                <div className="mt-1 flex rounded-md shadow-sm">
+
+                                                    <input
+
+                                                        type="text"
+
+                                                        name="codiceStatino"
+
+                                                        value={istruzioneData.codiceStatino ? istruzioneData.codiceStatino : ''}
+
+                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, codiceStatino: e.target.value })}
+
+                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+
+                                                        placeholder=""
+
+                                                    />
+
+                                                </div>
+
+                                            </div>
+
+
+
+                                        </div>
+
+
+
+                                    </form>
+
+
+
+                                </div>
+
+
+
+                            </div>
+
+                            <div className="md:grid md:grid-cols-3 md:gap-6 mt-12">
+
+                                <div className="md:col-span-1">
+
+                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Istruzione completata?</h3>
+
+                                    <p className="mt-1 text-sm text-gray-500">
+
+                                        Se l'allievo ha completato il percorso, sia in esito positivo che in esito negativo spunta questo bottone.
+
+                                    </p>
+
+                                </div>
+
+                                <div className="mt-5 md:mt-0 md:col-span-2">
+
+                                    <form className="space-y-6" action="#" method="POST">
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
+
+                                            <div className="col-span-3 sm:col-span-4 mt-12">
+
+
+
+                                                <label htmlFor="istruzioneCompletata" className="block text-sm font-medium text-gray-700">
+
+                                                    Seleziona per l'allievo selezionato(NO / SI)
+
+                                                </label>
+
+                                                <select
+
+                                                    name="istruzioneCompletata"
+
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                    value={istruzioneData.istruzioneCompletata}
+
+                                                    onChange={(e) => {
+
+                                                        setIstruzioneData({ ...istruzioneData, istruzioneCompletata: e.target.value === 'true' })
+
+                                                    }
+
+
+
+                                                    }
+
+                                                >
+
+                                                    <option value={true}>SI</option>
+
+                                                    <option value={false}>NO</option>
+
+                                                </select>
+
+                                            </div>
+
+                                        </div>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </>
+
+                    }
+
+                    {/* SCHEDA 3 */}
+
+                    {step === 'servizi' &&
+
+                        <div className="md:grid md:grid-cols-3 md:gap-6">
+
+                            <div className="md:col-span-1">
+
+                                <h3 className={`text-lg font-medium leading-6 ${readonly ? 'text-green-900' : 'text-gray-900 '}`}>
+
+                                    {readonly ?
+
+                                        `Servizio concluso`
+
+                                        :
+
+                                        `Inserisci il primo servizio per l'allievo`
+
+                                    }
+
+                                </h3>
+
+                                <p className={`mt-1 text-sm ${readonly ? 'text-green-500' : 'text-gray-500 '}`}>
+
+                                    {readonly ?
+
+                                        `Questo è un servizio passato quindi non modificabile nei suoi dettagli. È comunque possibile modificare e salvare l'esito del servizio svolto `
+
+                                        :
+
+                                        `Il primo servizio corrisponde al motivo dell'iscrizione, quindi seleziona guida, esame, corso o altro`
+
+                                    }
+
+                                </p>
+
+                            </div>
+
+                            <div className="mt-5 md:mt-0 md:col-span-2">
+
+                                <form className="space-y-6" action="#" method="POST">
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
+
+                                        {/* {(router.asPath.includes('servizi/new') && istruzioni) && */}
+
+                                        <div className="col-span-3 sm:col-span-4">
+
+                                            <label htmlFor="allievoIStruzioneId" className="block text-sm font-medium text-gray-700">
+
+                                                Seleziona istruzione di riferimento
+
+                                            </label>
+
+                                            <select
+
+                                                name="allievoIStruzioneId"
+
+                                                disabled={readonly}
+
+                                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                value={istruzioneId}
+
+                                                onChange={handleChangeIstruzione}
+
+                                            >
+
+                                                {!istruzioneId && <option value={'Seleziona'}>Seleziona...</option>}
+
+                                                {istruzioni && istruzioni.map((item, index) => (
+
+                                                    <option key={`${item.patenteId}-${index}`} value={JSON.stringify({ id: item.id, patenteId: item.patenteId })}>Patente: {item.patente.nome} - Marca operativa: {item.marcaOperativa}</option>
+
+                                                ))}
+
+                                            </select>
+
+                                        </div>
+
+                                        {/* } */}
+
+
+
+                                        {istruzioneId &&
+
+                                            <>
+
+                                                <div className="col-span-3 sm:col-span-4">
+
+                                                    <label htmlFor="tariffaTipo" className="block text-sm font-medium text-gray-700">
+
+                                                        Tipologia di servizio
+
+                                                    </label>
+
+                                                    <select
+
+                                                        disabled={readonly}
+
+                                                        name="tariffaTipo"
+
+                                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                        value={tariffaTipo}
+
+                                                        onChange={(e) => setTariffaTipo(e.target.options[e.target.selectedIndex].value)}
+
+                                                    >
+
+                                                        <option value={'Seleziona'}>Seleziona...</option>
+
+                                                        {istruzioneId && tariffe.map(item => (
+
+                                                            <option key={item.id} value={item.id}>{item.tipo}</option>
+
+                                                        ))}
+
+                                                    </select>
+
+                                                </div>
+
+
+
+
+
+                                                <div className="col-span-3 sm:col-span-4">
+
+                                                    <label htmlFor="tariffaId" className="block text-sm font-medium text-gray-700">
+
+                                                        Tariffa
+
+                                                    </label>
+
+                                                    <select
+
+                                                        name="tariffaId"
+
+                                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                        disabled={true}
+
+                                                        value={serviziData?.tariffaId ? serviziData?.tariffaId : ''}
+
+                                                        onChange={(e) => setServiziData({ ...serviziData, tariffaId: e.target.options[e.target.selectedIndex].value })}
+
+                                                    >
+
+                                                        <option value={'Seleziona'}>Seleziona...</option>
+
+                                                        {tariffeList.map(item => (
+
+                                                            <option value={item.id} key={item.id}>Tariffa per: {item.nome} Prezzo: {item.prezzo} €</option>
+
+                                                        ))}
+
+                                                    </select>
+
+                                                </div>
+
+                                            </>
+
+                                        }
+
+                                        {istruzioneId && tariffaTipo !== 'Seleziona' &&
+
+                                            <>
+
+                                                {checkIfEsameTeorico?.tipo_cod !== 'corso_teorico' &&
+
+                                                    <div className="col-span-3 sm:col-span-4">
+
+                                                        <label htmlFor="tariffaId" className="block text-sm font-medium text-gray-700">
+
+                                                            Seleziona veicoli
+
+                                                        </label>
+
+                                                        <select
+
+                                                            disabled={readonly}
+
+                                                            name="tariffaId"
+
+                                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                            value={serviziData?.veicoloId ? serviziData.veicoloId : ''}
+
+                                                            onChange={(e) => setServiziData({ ...serviziData, veicoloId: e.target.options[e.target.selectedIndex].value })}
+
+                                                        >
+
+                                                            <option value={'Seleziona'}>Seleziona...</option>
+
+                                                            {veicoliList.map(item => (
+
+                                                                <option value={item.id} key={item.id}>{item.nome} - {item.modello}</option>
+
+                                                            ))}
+
+                                                        </select>
+
+                                                    </div>
+
+                                                }
+
+
+
+                                                <div className="col-span-3 sm:col-span-4">
+
+                                                    <label htmlFor="durataMinuti" className="block text-sm font-medium text-gray-700">
+
+                                                        Durata (minuti)
+
+                                                    </label>
+
+                                                    <div className="mt-1 flex rounded-md shadow-sm">
+
+                                                        <select
+
+                                                            disabled={readonly}
+
+                                                            name="durataMinuti"
+
+                                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                            value={serviziData?.durataMinuti ? serviziData.durataMinuti : 30}
+
+                                                            onChange={(e) => setServiziData({ ...serviziData, durataMinuti: Number(e.target.options[e.target.selectedIndex].value) })}
+
+                                                        >
+
+                                                            <option value={30}>30 minuti</option>
+
+                                                            <option value={60}>60 minuti</option>
+
+
+
+                                                        </select>
+
+                                                    </div>
+
+                                                </div>
+
+
+
+                                                <div className="col-span-3 sm:col-span-4">
+
+                                                    <label htmlFor="istruttoreId" className="block text-sm font-medium text-gray-700">
+
+                                                        Seleziona istruttore / insegnante
+
+                                                    </label>
+
+                                                    <select
+
+                                                        disabled={readonly}
+
+                                                        name="istruttoreId"
+
+                                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                        value={serviziData?.istruttoreId ? serviziData.istruttoreId : ''}
+
+                                                        onChange={(e) => setServiziData({ ...serviziData, istruttoreId: e.target.options[e.target.selectedIndex].value })}
+
+                                                    >
+
+                                                        <option value={'Seleziona'}>Seleziona...</option>
+
+                                                        {istruttori && istruttori?.map(item => (
+
+                                                            <option value={item.user.id} key={item.id}>{item.user.profile.firstname + ' ' + item.user.profile.lastname}</option>
+
+                                                        ))}
+
+                                                        {insegnanti && insegnanti?.map(item => (
+
+                                                            <option value={item.user.id} key={item.id}>{item.user.profile.firstname + ' ' + item.user.profile.lastname}</option>
+
+                                                        ))}
+
+                                                        {istruttoriinsegnanti && istruttoriinsegnanti?.map(item => (
+
+                                                            <option value={item.user.id} key={item.id}>{item.user.profile.firstname + ' ' + item.user.profile.lastname}</option>
+
+                                                        ))}
+
+                                                    </select>
+
+                                                </div>
+
+                                            </>
+
+                                        }
+
+
+
+                                        <div className="col-span-3 sm:col-span-4">
+
+                                            <label htmlFor="inizioServizio" className="block text-sm font-medium text-gray-700">
+
+                                                Inizio servizio
+
+                                            </label>
+
+                                            <div className="mt-1 relative rounded-md shadow-sm">
+
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+
+                                                    <CalendarIcon className="h-5 w-5 text-gray-400 z-10" aria-hidden="true" />
+
+                                                </div>
+
+                                                <DatePicker
+
+                                                    locale={'it'}
+
+                                                    selected={startDate}
+
+                                                    onChange={handleChange}
+
+                                                    showTimeSelect
+
+                                                    filterTime={!userIsAdmin ? filterPassedTime : null}
+
+                                                    excludeTimes={disponibilita}
+
+                                                    minDate={!userIsAdmin ? new Date() : null}
+
+                                                    minTime={new Date('July 1, 1999, 09:00:00')}
+
+                                                    maxTime={new Date('July 1, 1999, 23:30:00')}
+
+                                                    timeFormat="p"
+
+                                                    dateFormat="Pp"
+
+                                                    timeIntervals={30}
+
+                                                    disabledKeyboardNavigation
+
+                                                    withPortal
+
+                                                    disabled={!readonly ? (serviziData?.tariffaId ? false : true) : true}
+
+                                                    placeholderText={serviziData?.tariffaId ? 'Seleziona una data' : "Seleziona prima un veicolo"}
+
+                                                    className={`focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md ${!serviziData.inizioServizio && 'text-gray-300'}`}
+
+                                                />
+
+
+
+                                            </div>
+
+                                        </div>
+
+
+
+
+
+                                        {router.asPath.includes('edit') &&
+
+                                            <>
+
+                                                <div className="col-span-3 sm:col-span-4">
+
+                                                    <label htmlFor="istruttoreId" className="block text-sm font-medium text-gray-700">
+
+                                                        Esito servizio
+
+                                                    </label>
+
+                                                    <select
+
+                                                        name="esito"
+
+                                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"
+
+                                                        value={serviziData.esito}
+
+                                                        onChange={(e) => setServiziData({ ...serviziData, esito: e.target.options[e.target.selectedIndex].value })}
+
+                                                    >
+
+                                                        <option value={''}>Seleziona</option>
+
+                                                        <option value={'idoneo'}>Idoneo</option>
+
+                                                        <option value={'respinto'}>Respinto</option>
+
+                                                        <option value={'assente'}>Assente</option>
+
+                                                        <option value={'presente'}>Presente (solo per le guide)</option>
+
+                                                        <option value={'guida_annullata_1'}>Guida annullata per maltempo</option>
+
+                                                        <option value={'guida_annullata_2'}>Guida annullata per guasto meccanico</option>
+
+                                                    </select>
+
+                                                </div>
+
+                                                <div className="col-span-3 sm:col-span-4">
+
+                                                    <div className="bg-white shadow  py-5 sm:rounded-lg sm:p-1">
+
+                                                        <div className="md:grid md:grid-cols-1">
+
+                                                            {/* <div className="md:col-span-1">
+
+                                                                <h3 className="text-lg font-medium leading-6 text-gray-900">Elimina</h3>
+
+                                                               
+
+                                                            </div> */}
+
+                                                            <div className="mt-5 md:mt-0 md:col-span-2">
+
+                                                                <div className="space-y-6">
+
+                                                                    <ButtonWithIconLeft clicked={() => router.push(`/allievi/servizi/delete/${sid}?allievoId=${allievoId ? allievoId : false}`)} icon={ExclamationTriangleIcon} text={'Elimina servizio'} color={'red'} />
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </>
+
+                                        }
+
+
+
+                                    </div>
+
+                                </form>
+
+
+
+                            </div>
+
+                        </div>
+
+                    }
+
+                </div>
+
+            </div>
+
+        </>
+
+    )
+
 }

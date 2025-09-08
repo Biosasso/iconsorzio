@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         let processedData = { ...data };
         
         // Se ci sono valutazioni, salva come JSON nel campo esito
-        if (data.valutazioneTeoria !== undefined || data.valutazioneLento !== undefined || data.valutazioneVeloce !== undefined || data.valutazioneGuida !== undefined) {
+        if (data.valutazioneTeoria !== undefined || data.valutazioneLento !== undefined || data.valutazioneVeloce !== undefined || data.valutazioneGuida !== undefined || data.appunti !== undefined) {
             const valutazioni = {
                 tipo: data.esito || 'presente',
                 valutazioni: {
@@ -16,7 +16,8 @@ export default async function handler(req, res) {
                     lento: data.valutazioneLento || 0,
                     veloce: data.valutazioneVeloce || 0,
                     guida: data.valutazioneGuida || 0
-                }
+                },
+                appunti: data.appunti || '' // Aggiungi campo appunti
             };
             
             // Salva come JSON nel campo esito
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
             delete processedData.valutazioneLento;
             delete processedData.valutazioneVeloce;
             delete processedData.valutazioneGuida;
+            delete processedData.appunti;
         }
         
         const result = await prisma.allievoServizio.update({

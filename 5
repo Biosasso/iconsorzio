@@ -1,0 +1,288 @@
+warning: in the working copy of 'components/allievi/form.js', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/components/allievi/form.js b/components/allievi/form.js[m
+[1mindex 2ab4ade..1a7fe98 100644[m
+[1m--- a/components/allievi/form.js[m
+[1m+++ b/components/allievi/form.js[m
+[36m@@ -855,6 +855,7 @@[m [mexport default function Form({[m
+                                                         <option value={'respinto'}>Respinto</option>[m
+                                                         <option value={'assente'}>Assente</option>[m
+                                                         <option value={'presente'}>Presente (solo per le guide)</option>[m
+[32m+[m[32m                                                        <option value={'guida_incompleta'}>Guida incompleta</option>[m
+                                                         <option value={'guida_annullata_1'}>Guida annullata per maltempo</option>[m
+                                                         <option value={'guida_annullata_2'}>Guida annullata per guasto meccanico</option>[m
+                                                     </select>[m
+[36m@@ -887,4 +888,832 @@[m [mexport default function Form({[m
+             </div>[m
+         </>[m
+     )[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m                                                <input[m
+[32m+[m
+[32m+[m[32m                                                    type="text"[m
+[32m+[m
+[32m+[m[32m                                                    name="tel"[m
+[32m+[m
+[32m+[m[32m                                                    value={data?.tel ? data.tel : ''}[m
+[32m+[m
+[32m+[m[32m                                                    onChange={(e) => setData({ ...data, tel: e.target.value })}[m
+[32m+[m
+[32m+[m[32m                                                    className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"[m
+[32m+[m
+[32m+[m[32m                                                    placeholder=""[m
+[32m+[m
+[32m+[m[32m                                                />[m
+[32m+[m
+[32m+[m[32m                                            </div>[m
+[32m+[m
+[32m+[m[32m                                        </div>[m
+[32m+[m
+[32m+[m[32m                                        <div className="col-span-3 sm:col-span-4">[m
+[32m+[m
+[32m+[m[32m                                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">[m
+[32m+[m
+[32m+[m[32m                                                Email[m
+[32m+[m
+[32m+[m[32m                                            </label>[m
+[32m+[m
+[32m+[m[32m                                            <div className="mt-1 flex rounded-md shadow-sm">[m
+[32m+[m
+[32m+[m[32m                                                <input[m
+[32m+[m
+[32m+[m[32m                                                    type="text"[m
+[32m+[m
+[32m+[m[32m                                                    name="email"[m
+[32m+[m
+[32m+[m[32m                                                    value={data?.email ? data.email : ''}[m
+[32m+[m
+[32m+[m[32m                                                    onChange={(e) => setData({ ...data, email: e.target.value })}[m
+[32m+[m
+[32m+[m[32m                                                    className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"[m
+[32m+[m
+[32m+[m[32m                                                    placeholder=""[m
+[32m+[m
+[32m+[m[32m                                                />[m
+[32m+[m
+[32m+[m[32m                                            </div>[m
+[32m+[m
+[32m+[m[32m                                        </div>[m
+[32m+[m
+[32m+[m[32m                                    </div>[m
+[32m+[m
+[32m+[m[32m                                </form>[m
+[32m+[m
+[32m+[m[32m                            </div>[m
+[32m+[m
+[32m+[m[32m                        </div>[m
+[32m+[m
+[32m+[m[32m                    }[m
+[32m+[m
+[32m+[m[32m                    {/* SCHEDA 2 */}[m
+[32m+[m
+[32m+[m[32m                    {step === 'istruzione' &&[m
+[32m+[m
+[32m+[m[32m                        <>[m
+[32m+[m
+[32m+[m[32m                            <div className="md:grid md:grid-cols-3 md:gap-6">[m
+[32m+[m
+[32m+[m[32m                                <div className="md:col-span-1">[m
+[32m+[m
+[32m+[m[32m                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{router.asPath.includes('new') ? 'Inserisci' : 'Modifica'} l'istruzione</h3>[m
+[32m+[m
+[32m+[m[32m                                    <p className="mt-1 text-sm text-gray-500">[m
+[32m+[m
+[32m+[m[32m                                        L'istruzione dell'allievo fa riferimento al motivo dell'iscrizione, quindi i dati del corso o del folgio rosa[m
+[32m+[m
+[32m+[m[32m                                    </p>[m
+[32m+[m
+[32m+[m[32m                                </div>[m
+[32m+[m
+[32m+[m[32m                                <div className="mt-5 md:mt-0 md:col-span-2">[m
+[32m+[m
+[32m+[m[32m                                    <form className="space-y-6" action="#" method="POST">[m
+[32m+[m
+[32m+[m[32m                                        <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">[m
+[32m+[m
+[32m+[m[32m                                            <div className="col-span-3 sm:col-span-4">[m
+[32m+[m
+[32m+[m[32m                                                <label htmlFor="patenteId" className="block text-sm font-medium text-gray-700">[m
+[32m+[m
+[32m+[m[32m                                                    Seleziona patente[m
+[32m+[m
+[32m+[m[32m                                                </label>[m
+[32m+[m
+[32m+[m[32m                                                <select[m
+[32m+[m
+[32m+[m[32m                                                    name="patenteId"[m
+[32m+[m
+[32m+[m[32m                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md uppercase"[m
+[32m+[m
+[32m+[m[32m                                                    value={istruzioneData?.patenteId ? istruzioneData.patenteId : ''}[m
+[32m+[m
+[32m+[m[32m                                                    onChange={(e) => setIstruzioneData({ ...istruzioneData, patenteId: e.target.options[e.target.selectedIndex].value })}[m
+[32m+[m
+[32m+[m[32m                                                >[m
+[32m+[m
+[32m+[m[32m                                                    <option value={'Seleziona'}>Seleziona...</option>[m
+[32m+[m
+[32m+[m[32m                                                    {patenti?.map(item => ([m
+[32m+[m
+[32m+[m[32m                                                        <option key={item.id} value={item.id}>{item.nome}</option>[m
+[32m+[m
+[32m+[m[32m                                                    ))}[m
+[32m+[m
+[32m+[m[32m                                                </select>[m
+[32m+[m
+[32m+[m[32m                                            </div>[m
+[32m+[m
+[32m+[m[32m                                            <div className="col-span-3 sm:col-span-4">[m
+[32m+[m
+[32m+[m[32m                                                <label htmlFor="dataEsame" className="block text-sm font-medium text-gray-700">[m
+[32m+[m
+[32m+[m[32m                                                    Data esame (Se corso di rinnovo inserire la data di fine corso)[m
+[32m+[m
+[32m+[m[32m                                                </label>[m
+[32m+[m
+[32m+[m[32m                                                <div className="mt-1 relative rounded-md shadow-sm">[m
+[32m+[m
+[32m+[m[32m                                                    <DatePicker[m
+[32m+[m
+[32m+[m[32m                                                        locale={'it'}[m
+[32m+[m
+[32m+[m[32m                                                        selected={istruzioneData?.dataEsame ? new Date(istruzioneData.dataEsame) : ''}[m
+[32m+[m
+[32m+[m[32m                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, dataEsame: e })}[m
+[32m+[m
+[32m+[m[32m                                                        dateFormat="P"[m
+[32m+[m
+[32m+[m[32m                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"[m
+[32m+[m
+[32m+[m[32m                                                    />[m
+[32m+[m
+[32m+[m[32m                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">[m
+[32m+[m
+[32m+[m[32m                                                        <CalendarIcon className="h-5 w-5 text-gray-700 z-1" aria-hidden="true" />[m
+[32m+[m
+[32m+[m[32m                                                    </div>[m
+[32m+[m
+[32m+[m[32m                                                </div>[m
+[32m+[m
+[32m+[m[32m                                            </div>[m
+[32m+[m
+[32m+[m[32m                                            <div className="col-span-3 sm:col-span-2">[m
+[32m+[m
+[32m+[m[32m                                                <label htmlFor="foglioRosaRilascio" className="block text-sm font-medium text-gray-700">[m
+[32m+[m
+[32m+[m[32m                                                    Rilascio foglio rosa[m
+[32m+[m
+[32m+[m[32m                                                </label>[m
+[32m+[m
+[32m+[m[32m                                                <div className="mt-1 relative rounded-md shadow-sm">[m
+[32m+[m
+[32m+[m[32m                                                    <DatePicker[m
+[32m+[m
+[32m+[m[32m                                                        locale={'it'}[m
+[32m+[m
+[32m+[m[32m                                                        selected={istruzioneData?.foglioRosaRilascio ? new Date(istruzioneData.foglioRosaRilascio) : ''}[m
+[32m+[m
+[32m+[m[32m                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, foglioRosaRilascio: e })}[m
+[32m+[m
+[32m+[m[32m                                                        dateFormat="P"[m
+[32m+[m
+[32m+[m[32m                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"[m
+[32m+[m
+[32m+[m[32m                                                    />[m
+[32m+[m
+[32m+[m[32m                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">[m
+[32m+[m
+[32m+[m[32m                                                        <CalendarIcon className="h-5 w-5 text-gray-700 z-1" aria-hidden="true" />[m
+[32m+[m
+[32m+[m[32m                                                    </div>[m
+[32m+[m
+[32m+[m[32m                                                </div>[m
+[32m+[m
+[32m+[m[32m                                            </div>[m
+[32m+[m
+[32m+[m[32m                                            <div className="col-span-3 sm:col-span-2">[m
+[32m+[m
+[32m+[m[32m                                                <label htmlFor="foglioRosaScadenza" className="block text-sm font-medium text-gray-700">[m
+[32m+[m
+[32m+[m[32m                                                    Scadenza foglio rosa[m
+[32m+[m
+[32m+[m[32m                                                </label>[m
+[32m+[m
+[32m+[m[32m                                                <div className="mt-1 relative rounded-md shadow-sm">[m
+[32m+[m
+[32m+[m[32m                                                    <DatePicker[m
+[32m+[m
+[32m+[m[32m                                                        locale={'it'}[m
+[32m+[m
+[32m+[m[32m                                                        selected={istruzioneData?.foglioRosaScadenza ? new Date(istruzioneData.foglioRosaScadenza) : ''}[m
+[32m+[m
+[32m+[m[32m                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, foglioRosaScadenza: e })}[m
+[32m+[m
+[32m+[m[32m                                                        dateFormat="P"[m
+[32m+[m
+[32m+[m[32m                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"[m
+[32m+[m
+[32m+[m[32m                                                    />[m
+[32m+[m
+[32m+[m[32m                                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">[m
+[32m+[m
+[32m+[m[32m                                                        <CalendarIcon className="h-5 w-5 text-gray-700 z-1" aria-hidden="true" />[m
+[32m+[m
+[32m+[m[32m                                                    </div>[m
+[32m+[m
+[32m+[m[32m                                                </div>[m
+[32m+[m
+[32m+[m[32m                                            </div>[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m                                            <div className="col-span-3 sm:col-span-4">[m
+[32m+[m
+[32m+[m[32m                                                <label htmlFor="marcaOperativa" className="block text-sm font-medium text-gray-700">[m
+[32m+[m
+[32m+[m[32m                                                    Marca Operativa                                        </label>[m
+[32m+[m
+[32m+[m[32m                                                <div className="mt-1 flex rounded-md shadow-sm">[m
+[32m+[m
+[32m+[m[32m                                                    <input[m
+[32m+[m
+[32m+[m[32m                                                        type="text"[m
+[32m+[m
+[32m+[m[32m                                                        name="marcaOperativa"[m
+[32m+[m
+[32m+[m[32m                                                        value={istruzioneData?.marcaOperativa ? istruzioneData.marcaOperativa : ''}[m
+[32m+[m
+[32m+[m[32m                                                        onChange={(e) => setIstruzioneData({ ...istruzioneData, marcaOperativa: e.target.value })}[m
+[32m+[m
+[32m+[m[32m                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"[m
+[32m+[m
+[32m+[m[32m                                                        placeholder=""[m
+[32m+[m
+[32m+[m[32m                                                    />[m
+[32m+[m
+[32m+[m[32m                                                </div>[m
+[32m+[m
+[32m+[m[32m                                            </div>[m
+[32m+[m
+[32m+[m[32m                                            <div className="col-span-3 sm:col-span-4">[m
+[32m+[m
+[32m+[m[32m                                                <label htmlFor="codiceStatino" className="block text-sm font-medium text-gray-700">[m
+[32m+[m
+[32m+[m[32m                                                    Codice Statino[m
+[32m+[m
+[32m+[m[32m                                                </label>[m
+[32m+[m
+[32m+[m[32m                                                <div className="mt-1 flex rounded-md shadow-sm">[m
+[32m+[m
+[32m+[m[32m                                                    <input[m
+[32m+[m
+[32m+[m[32m                                                        type="text"[m
+[32m+[m
+[32m+[m[32m                                                        name="codiceStatino"[m
+[32m+[m
+[32m+[m[32m                                        

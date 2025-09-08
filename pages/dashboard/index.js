@@ -19,7 +19,17 @@ import { DateTime } from 'datetime-next';
 
 // Funzione per aggiungere icone per situazioni critiche
 const getEventIcon = (item) => {
-  const esitoLower = (item.esito || '').toLowerCase().trim();
+  // Parsing dell'esito se è JSON
+  let esitoValue = item.esito || '';
+  if (typeof esitoValue === 'string' && esitoValue.startsWith('{')) {
+    try {
+      const esitoData = JSON.parse(esitoValue);
+      esitoValue = esitoData.tipo || esitoValue;
+    } catch (e) {
+      // Se non è JSON valido, usa il valore originale
+    }
+  }
+  const esitoLower = esitoValue.toLowerCase().trim();
   const tipoServizio = item.tariffa?.tipo?.tipo || '';
   
   // Per gli ESAMI
@@ -57,9 +67,6 @@ const getEventIcon = (item) => {
     }
     if (esitoLower === 'guida_annullata_2') {
       return '🔧 '; // Guasto meccanico
-    }
-    if (esitoLower === 'guida_incompleta') {
-      return '⛔ '; // Guida incompleta
     }
   }
   
@@ -104,7 +111,17 @@ const getEventColor = (item) => {
     }
     
     // Se ha un esito specifico - Rendo case-insensitive e robusto
-    const esitoLower = item.esito.toLowerCase().trim();
+    // Parsing dell'esito se è JSON
+    let esitoValue = item.esito || '';
+    if (typeof esitoValue === 'string' && esitoValue.startsWith('{')) {
+      try {
+        const esitoData = JSON.parse(esitoValue);
+        esitoValue = esitoData.tipo || esitoValue;
+      } catch (e) {
+        // Se non è JSON valido, usa il valore originale
+      }
+    }
+    const esitoLower = esitoValue.toLowerCase().trim();
     
     // Check per guide presenti (varie forme)
     if (esitoLower.includes('presente')) {
@@ -127,9 +144,6 @@ const getEventColor = (item) => {
     }
     if (esitoLower === 'guida_annullata_2') {
       return '#F97316'; // Arancione per guasto meccanico (con simbolo 🔧)
-    }
-    if (esitoLower === 'guida_incompleta') {
-      return '#8B4513'; // Marrone scuro per guida incompleta
     }
     
     // Default

@@ -36,9 +36,9 @@ const getEventIcon = (item) => {
     const now = Math.floor(Date.now() / 1000); // Timestamp attuale in secondi
     const isPast = item.fineServizio < now; // La guida è finita
     
-    // PUNTO INTERROGATIVO ROSSO per guide effettuate e non valutate
+    // PUNTO INTERROGATIVO per guide effettuate e non valutate
     if (isPast && (!item.esito || item.esito === '')) {
-      return '❓ '; // Punto interrogativo rosso per guide effettuate e non valutate
+      return '❓ '; // Punto interrogativo per guide effettuate e non valutate
     }
     
     // Simbolo per guide assenti normali
@@ -57,6 +57,9 @@ const getEventIcon = (item) => {
     }
     if (esitoLower === 'guida_annullata_2') {
       return '🔧 '; // Guasto meccanico
+    }
+    if (esitoLower === 'guida_incompleta') {
+      return '⛔ '; // Guida incompleta
     }
   }
   
@@ -124,6 +127,9 @@ const getEventColor = (item) => {
     }
     if (esitoLower === 'guida_annullata_2') {
       return '#F97316'; // Arancione per guasto meccanico (con simbolo 🔧)
+    }
+    if (esitoLower === 'guida_incompleta') {
+      return '#8B4513'; // Marrone scuro per guida incompleta
     }
     
     // Default

@@ -1,0 +1,18 @@
+.env.backup
+5
+components/allievi/form.js
+components/allievi/form_backup_corrupted.js
+components/allievi/servizi/lsit.js
+et --hard 1974940
+et --hard 5629c37
+ionTable.PSVersion
+package-lock.json
+package.json
+pages/allievi/list/index.js
+pages/allievi/servizi/edit/[sid].js
+pages/allievi/servizi/new/[aid].js
+pages/api/allievi/servizi/new.js
+pages/api/allievi/servizi/update.js
+pages/dashboard/index.js
+t next react next-auth
+t react-popper

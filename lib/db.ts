@@ -16,3 +16,18 @@ export const prisma =
     })
 
 if (process.env.NODE_ENV !== 'production') global.prisma = prisma
+
+// Disconnect automatico per evitare troppi collegamenti
+process.on('beforeExit', async () => {
+    await prisma.$disconnect()
+})
+
+process.on('SIGINT', async () => {
+    await prisma.$disconnect()
+    process.exit(0)
+})
+
+process.on('SIGTERM', async () => {
+    await prisma.$disconnect()
+    process.exit(0)
+})

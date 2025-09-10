@@ -26,8 +26,22 @@ export default async function handler(req, res) {
         res.json(result)
 
     }
-    catch (err) {
-        console.log(err)
-        res.status(200).json({ statusCode: 400, title: 'Errore inaspettato', message: 'Errore nel caricamento dei dati, ricarica la pagina' })
+    catch (error) {
+        console.error('Database error in /api/veicoli/list:', error);
+        
+        // Gestione specifica per errori di connessione
+        if (error.code === 'P2037') {
+            console.error('Troppe connessioni al database');
+            return res.status(503).json({ statusCode: 503, title: 'Database sovraccarico', message: 'Database temporaneamente sovraccarico, riprova tra qualche minuto' });
+        }
+        
+        // Per altri errori di database
+        if (error.code && error.code.startsWith('P')) {
+            console.error('Errore Prisma:', error.code);
+            return res.status(500).json({ statusCode: 500, title: 'Errore database', message: 'Errore nel caricamento dei dati, ricarica la pagina' });
+        }
+        
+        // Per errori generici
+        return res.status(500).json({ statusCode: 500, title: 'Errore inaspettato', message: 'Errore nel caricamento dei dati, ricarica la pagina' });
     }
 }

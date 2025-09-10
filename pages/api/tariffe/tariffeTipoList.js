@@ -79,8 +79,23 @@ export default async function handler(req, res) {
             res.json(tariffeTipo)
         }
 
-    } catch (err) {
-        console.log(err)
+    } catch (error) {
+        console.error('Database error in /api/tariffe/tariffeTipoList:', error);
+        
+        // Gestione specifica per errori di connessione
+        if (error.code === 'P2037') {
+            console.error('Troppe connessioni al database');
+            return res.status(503).json({ error: 'Database temporaneamente sovraccarico' });
+        }
+        
+        // Per altri errori di database
+        if (error.code && error.code.startsWith('P')) {
+            console.error('Errore Prisma:', error.code);
+            return res.status(500).json({ error: 'Errore database' });
+        }
+        
+        // Per errori generici
+        return res.status(500).json({ error: 'Errore interno del server' });
     }
 
 

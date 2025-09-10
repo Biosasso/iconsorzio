@@ -1,0 +1,5 @@
+[33m017976b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;33mtag: [m[1;33mbackup-08-09-2025-dashboard-fix[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix: Dashboard colori e simboli - Parsing JSON esito corretto - Test completi superati - 08/09/2025
+[33m91523d9[m Fix: Aggiunto disconnect automatico per risolvere problema troppi collegamenti database
+[33mb46b762[m[33m ([m[1;33mtag: [m[1;33mv1.1-sistema-valutazioni-completo-2025-09-08[m[33m)[m Fix: Rimuovo doppione 'Guida incompleta' dal menu a tendina - Sistema valutazioni completo e testato
+[33m60d9b2f[m Merge: Risolto conflitto in dashboard/index.js - Integrate valutazioni system with Vercel updates
+[33m7c36501[m[33m ([m[1;33mtag: [m[1;33mv1.0-form-sincronizzazione-2025-09-08[m[33m)[m  FIX COMPLETATO - useLayoutEffect per sincronizzazione form valutazioni - 2024-12-19

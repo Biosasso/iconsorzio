@@ -126,7 +126,7 @@ export default function Form({
         }
     }, [checkIfEsameTeorico, data])
 
-    const { data: disponibilita } = useSWR(serviziData && serviziData?.veicoloId ? {
+    const { data: disponibilita } = useSWR(serviziData && serviziData?.veicoloId && serviziData?.istruttoreId ? {
         url: '/api/allievi/servizi/getUsedTime',
         data: {
             companyId: serviziData.companyId,
@@ -139,7 +139,18 @@ export default function Form({
     } : null, fetcherDisponibilitaVeicoli, {
         revalidateIfStale: false,
         revalidateOnFocus: false,
-        revalidateOnReconnect: false
+        revalidateOnReconnect: false,
+        dedupingInterval: 1000, // Evita chiamate duplicate entro 1 secondo
+        errorRetryCount: 2,
+        errorRetryInterval: 1000,
+        onSuccess: (data) => {
+            console.log('DEBUG Form disponibilita:', {
+                startDate: startDate?.toISOString(),
+                disponibilita: data,
+                veicoloId: serviziData?.veicoloId,
+                istruttoreId: serviziData?.istruttoreId
+            });
+        }
     }
     )
 
@@ -241,21 +252,38 @@ export default function Form({
     }, [data, serviziData?.esito]) // Dipendenze corrette: data per API, serviziData.esito per stato locale
 
     const handleChange = (e) => {
-        const inizio = Math.floor(new Date(e) / 1000)
-        const fine = inizio + (serviziData.durataMinuti * 60)
-        setStartDate(new Date(e));
+        // Correzione fuso orario: gestisce correttamente il timezone locale
+        const date = new Date(e);
+        
+        // Crea timestamp locale preservando il timezone del browser
+        const localTimestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 
+                                       date.getHours(), date.getMinutes(), date.getSeconds());
+        
+        // Converte in timestamp Unix mantenendo il timezone locale
+        const inizio = Math.floor(localTimestamp.getTime() / 1000);
+        const fine = inizio + (serviziData.durataMinuti * 60);
+        
+        // Debug log per verificare la conversione
+        console.log('DEBUG Form handleChange:', {
+            originalDate: e,
+            localTimestamp: localTimestamp.toISOString(),
+            inizio,
+            fine,
+            durataMinuti: serviziData.durataMinuti
+        });
+        
+        setStartDate(localTimestamp);
         setServiziData({ ...serviziData, inizioServizio: inizio, fineServizio: fine });
-
     };
 
     const selectMaxTime = () => {
         const tariffaSelezionata = tariffe.find(el => el.id === tariffaTipo)
 
         if (tariffaSelezionata && tariffaSelezionata.tipo_cod === "corso_teorico") {
-            return new Date('July 1, 1999, 23:30:00')
+            return new Date('July 1, 1999, 23:59:59')
         }
         else {
-            return new Date('July 1, 1999, 18:30:00')
+            return new Date('July 1, 1999, 23:59:59')
         }
     }
 
@@ -860,8 +888,8 @@ export default function Form({
                                                     filterTime={!userIsAdmin ? filterPassedTime : null}
                                                     excludeTimes={disponibilita}
                                                     minDate={!userIsAdmin ? new Date() : null}
-                                                    minTime={new Date('July 1, 1999, 09:00:00')}
-                                                    maxTime={new Date('July 1, 1999, 23:30:00')}
+                                                    minTime={new Date('July 1, 1999, 00:00:00')}
+                                                    maxTime={new Date('July 1, 1999, 23:59:59')}
                                                     timeFormat="p"
                                                     dateFormat="Pp"
                                                     timeIntervals={30}

@@ -167,64 +167,6 @@ export default function Dashboard({ }) {
     const [selectedWorkplace, setSelectedWorkplace] = useState('')
     const [selectedIstruttore, setSelectedIstruttore] = useState()
     const [selectedInsegnante, setSelectedInsegnante] = useState()
-    
-    // Stato per filtri salvati in sessione
-    const [savedFilters, setSavedFilters] = useState({
-        selectedFilter: 'mostra-tutti',
-        selectedWorkplace: '',
-        selectedIstruttore: '',
-        selectedInsegnante: ''
-    })
-    const [filtersSaved, setFiltersSaved] = useState(false)
-
-    // Funzioni per salvare e caricare filtri in sessionStorage
-    const saveFilters = () => {
-        const currentFilters = {
-            selectedFilter: selectedFilter,
-            selectedWorkplace: selectedWorkplace,
-            selectedIstruttore: selectedIstruttore,
-            selectedInsegnante: selectedInsegnante
-        }
-        
-        // Salva in sessionStorage per persistenza durante la sessione
-        if (typeof window !== 'undefined') {
-            try {
-                sessionStorage.setItem('dashboard-savedFilters', JSON.stringify(currentFilters))
-                setSavedFilters(currentFilters)
-                setFiltersSaved(true)
-                console.log('✅ Filtri salvati in sessionStorage:', currentFilters)
-            } catch (error) {
-                console.warn('Errore nel salvare filtri in sessionStorage:', error)
-            }
-        }
-    }
-
-    const resetFilters = () => {
-        // Reset filtri attuali
-        setSelectedFilter('mostra-tutti')
-        setSelectedWorkplace('')
-        setSelectedIstruttore('')
-        setSelectedInsegnante('')
-        
-        // Reset filtri salvati
-        setSavedFilters({
-            selectedFilter: 'mostra-tutti',
-            selectedWorkplace: '',
-            selectedIstruttore: '',
-            selectedInsegnante: ''
-        })
-        setFiltersSaved(false)
-        
-        // Rimuovi da sessionStorage
-        if (typeof window !== 'undefined') {
-            try {
-                sessionStorage.removeItem('dashboard-savedFilters')
-                console.log('🔄 Filtri resettati e rimossi da sessionStorage')
-            } catch (error) {
-                console.warn('Errore nel rimuovere filtri da sessionStorage:', error)
-            }
-        }
-    }
 
     // Funzioni per gestire localStorage in modo sicuro
     const validateFilterData = (data) => {
@@ -288,9 +230,7 @@ export default function Dashboard({ }) {
         }
     };
 
-    // DISABILITATO: Caricamento automatico da localStorage per evitare conflitti con sessionStorage
-    // I filtri vengono ora gestiti solo tramite sessionStorage e pulsanti manuali
-    /*
+    // Carica i filtri salvati al primo caricamento (solo lato client)
     useEffect(() => {
         if (typeof window !== 'undefined') {
             console.log('DEBUG: Caricando filtri salvati...');
@@ -312,54 +252,8 @@ export default function Dashboard({ }) {
             setSelectedInsegnante(savedInsegnante);
         }
     }, []);
-    */
 
-    // Carica automaticamente i filtri salvati da sessionStorage al caricamento della pagina
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const saved = sessionStorage.getItem('dashboard-savedFilters')
-            if (saved) {
-                try {
-                    const parsedFilters = JSON.parse(saved)
-                    setSelectedFilter(parsedFilters.selectedFilter)
-                    setSelectedWorkplace(parsedFilters.selectedWorkplace)
-                    setSelectedIstruttore(parsedFilters.selectedIstruttore)
-                    setSelectedInsegnante(parsedFilters.selectedInsegnante)
-                    setSavedFilters(parsedFilters)
-                    setFiltersSaved(true)
-                    console.log('🔄 Filtri caricati automaticamente da sessionStorage:', parsedFilters)
-                } catch (error) {
-                    console.warn('Errore nel caricare filtri da sessionStorage:', error)
-                }
-            }
-        }
-    }, []);
-
-    // Carica i filtri salvati ogni volta che la pagina si carica (anche al ritorno da altre pagine)
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const saved = sessionStorage.getItem('dashboard-savedFilters')
-            if (saved && filtersSaved) {
-                try {
-                    const parsedFilters = JSON.parse(saved)
-                    // Solo se i filtri attuali sono diversi da quelli salvati
-                    if (selectedIstruttore !== parsedFilters.selectedIstruttore) {
-                        setSelectedFilter(parsedFilters.selectedFilter)
-                        setSelectedWorkplace(parsedFilters.selectedWorkplace)
-                        setSelectedIstruttore(parsedFilters.selectedIstruttore)
-                        setSelectedInsegnante(parsedFilters.selectedInsegnante)
-                        console.log('🔄 Filtri ripristinati da sessionStorage:', parsedFilters)
-                    }
-                } catch (error) {
-                    console.warn('Errore nel ripristinare filtri da sessionStorage:', error)
-                }
-            }
-        }
-    }, [filtersSaved, selectedIstruttore]);
-
-    // DISABILITATO: Salvataggio automatico in localStorage per evitare conflitti con sessionStorage
-    // I filtri vengono ora gestiti solo tramite sessionStorage e pulsanti manuali
-    /*
+    // Salva i filtri in localStorage quando cambiano (solo lato client)
     useEffect(() => {
         if (typeof window !== 'undefined') {
             console.log('DEBUG: Salvataggio selectedFilter:', selectedFilter);
@@ -403,7 +297,6 @@ export default function Dashboard({ }) {
             }
         }
     }, [selectedInsegnante]);
-    */
 
     const { data: companyId } = useSWR('/api/admin/company/isActive', fetcher, {
         revalidateIfStale: false,
@@ -435,9 +328,6 @@ export default function Dashboard({ }) {
         }
     } : null, fetcherWithData);
 
-    // DISABILITATO: Inizializzazione automatica per evitare conflitti con sessionStorage
-    // I filtri vengono ora gestiti solo tramite sessionStorage e pulsanti manuali
-    /*
     useEffect(() => {
         //inizializzo al primo caricamento SOLO se non ci sono filtri salvati (solo lato client)
         if (typeof window !== 'undefined') {
@@ -458,43 +348,30 @@ export default function Dashboard({ }) {
         }
 
     }, [filteredListForSelectedBox])
-    */
 
     useEffect(() => {
         if (disponibilitaCalendar) {
             let filteredArray = [];
             if (selectedFilter === 'mostra-tutti') {
                 filteredArray = disponibilitaCalendar
-                // NON resettare i filtri se sono stati salvati in sessionStorage
-                if (!filtersSaved) {
-                    setSelectedWorkplace('');
-                    setSelectedInsegnante('')
-                    setSelectedIstruttore('')
-                }
+                setSelectedWorkplace('');
+                setSelectedInsegnante('')
+                setSelectedIstruttore('')
             }
             else if (selectedFilter === 'workplace' && selectedWorkplace !== '') {
                 filteredArray = disponibilitaCalendar.filter(el => el.veicolo?.workplaceId === selectedWorkplace)
-                // NON resettare i filtri se sono stati salvati in sessionStorage
-                if (!filtersSaved) {
-                    setSelectedInsegnante('')
-                    setSelectedIstruttore('')
-                }
+                setSelectedInsegnante('')
+                setSelectedIstruttore('')
             }
             else if (selectedFilter === 'insegnante') {
                 filteredArray = disponibilitaCalendar.filter(el => el.istruttore.profile.id === selectedInsegnante)
-                // NON resettare i filtri se sono stati salvati in sessionStorage
-                if (!filtersSaved) {
-                    setSelectedWorkplace('');
-                    setSelectedIstruttore('')
-                }
+                setSelectedWorkplace('');
+                setSelectedIstruttore('')
             }
             else if (selectedFilter === 'istruttore') {
                 filteredArray = disponibilitaCalendar.filter(el => el.istruttore.profile.id === selectedIstruttore)
-                // NON resettare i filtri se sono stati salvati in sessionStorage
-                if (!filtersSaved) {
-                    setSelectedWorkplace('');
-                    setSelectedInsegnante('')
-                }
+                setSelectedWorkplace('');
+                setSelectedInsegnante('')
             }
 
             const arr = [];
@@ -632,23 +509,11 @@ export default function Dashboard({ }) {
     }
     const Button1 = () => {
         return (
-            <div className="flex space-x-2">
-                <button
-                    onClick={saveFilters}
-                    className="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    💾 Salva Filtri
-                </button>
-                <button
-                    onClick={resetFilters}
-                    className="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                    🔄 Reset Filtri
-                </button>
-                <button
-                    onClick={() => window.print()}
-                    className="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    🖨️ Stampa
-                </button>
-            </div>
+            <button
+                onClick={() => window.print()}
+                className="order-0 mx-6 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:order-1 sm:ml-3">
+                Stampa
+            </button>
         )
     }
 

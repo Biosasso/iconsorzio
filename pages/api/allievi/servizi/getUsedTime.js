@@ -28,9 +28,36 @@ export default async function handler(req, res) {
 
     const eveningTime = await selectMaxTimeFromTariffa(tariffe, tariffaTipo);
 
-    //Elimino le ore, prima ne aggiungo una perché se è selezionata mezzanotte manca un'ora per via del LOCALE: IT
-    const dataUnix = new DateTime(dataSelezionata).setHour(0).setMinute(0).setSecond(0).getUnixTimestamp(); //.addHour(1) RIMETTERE IN ORA LEGALE
-    const domaniUnix = new DateTime(dataSelezionata).setHour(0).setMinute(0).setSecond(0).addDay(1).getUnixTimestamp(); //.addHour(1) RIMETTERE IN ORA LEGALE
+    // Correzione fuso orario: gestisce correttamente il timezone locale
+    let dataUnix, domaniUnix;
+    
+    if (dataSelezionata instanceof Date) {
+        // Crea una data locale corretta mantenendo il timezone originale
+        const year = dataSelezionata.getFullYear();
+        const month = dataSelezionata.getMonth();
+        const day = dataSelezionata.getDate();
+        
+        // Crea date locali per mezzanotte del giorno selezionato
+        const dataLocale = new Date(year, month, day, 0, 0, 0);
+        const domaniLocale = new Date(year, month, day + 1, 0, 0, 0);
+        
+        dataUnix = Math.floor(dataLocale.getTime() / 1000);
+        domaniUnix = Math.floor(domaniLocale.getTime() / 1000);
+        
+        // Debug log per verificare le date
+        console.log('DEBUG getUsedTime:', {
+            dataSelezionata: dataSelezionata.toISOString(),
+            dataLocale: dataLocale.toISOString(),
+            dataUnix,
+            domaniUnix,
+            year, month, day
+        });
+    } else {
+        // Fallback per stringhe - usa DateTime per parsing sicuro
+        const dataString = dataSelezionata;
+        dataUnix = new DateTime(dataString).setHour(0).setMinute(0).setSecond(0).getUnixTimestamp();
+        domaniUnix = new DateTime(dataString).setHour(0).setMinute(0).setSecond(0).addDay(1).getUnixTimestamp();
+    }
 
     try {
 

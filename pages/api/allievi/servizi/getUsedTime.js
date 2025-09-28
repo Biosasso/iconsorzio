@@ -31,11 +31,12 @@ export default async function handler(req, res) {
     // Correzione fuso orario: gestisce correttamente il timezone locale
     let dataUnix, domaniUnix;
     
-    if (dataSelezionata instanceof Date) {
-        // Crea una data locale corretta mantenendo il timezone originale
-        const year = dataSelezionata.getFullYear();
-        const month = dataSelezionata.getMonth();
-        const day = dataSelezionata.getDate();
+    if (typeof dataSelezionata === 'number') {
+        // Gestisce timestamp Unix ricevuti dal fetcher
+        const dataDate = new Date(dataSelezionata * 1000);
+        const year = dataDate.getFullYear();
+        const month = dataDate.getMonth();
+        const day = dataDate.getDate();
         
         // Crea date locali per mezzanotte del giorno selezionato
         const dataLocale = new Date(year, month, day, 0, 0, 0);
@@ -44,19 +45,50 @@ export default async function handler(req, res) {
         dataUnix = Math.floor(dataLocale.getTime() / 1000);
         domaniUnix = Math.floor(domaniLocale.getTime() / 1000);
         
-        // Debug log per verificare le date
-        console.log('DEBUG getUsedTime:', {
-            dataSelezionata: dataSelezionata.toISOString(),
+        console.log('DEBUG getUsedTime API (Unix timestamp):', {
+            dataSelezionata,
+            dataDate: dataDate.toISOString(),
             dataLocale: dataLocale.toISOString(),
+            domaniLocale: domaniLocale.toISOString(),
             dataUnix,
             domaniUnix,
             year, month, day
+        });
+    } else if (dataSelezionata instanceof Date) {
+        // Usa il timezone del browser per creare date locali corrette
+        const year = dataSelezionata.getFullYear();
+        const month = dataSelezionata.getMonth();
+        const day = dataSelezionata.getDate();
+        
+        // Crea date locali per mezzanotte del giorno selezionato
+        // Usa il timezone del browser invece di UTC
+        const dataLocale = new Date(year, month, day, 0, 0, 0);
+        const domaniLocale = new Date(year, month, day + 1, 0, 0, 0);
+        
+        dataUnix = Math.floor(dataLocale.getTime() / 1000);
+        domaniUnix = Math.floor(domaniLocale.getTime() / 1000);
+        
+        // Debug log per verificare le date
+        console.log('DEBUG getUsedTime API (Date):', {
+            dataSelezionata: dataSelezionata.toISOString(),
+            dataLocale: dataLocale.toISOString(),
+            domaniLocale: domaniLocale.toISOString(),
+            dataUnix,
+            domaniUnix,
+            year, month, day,
+            timezoneOffset: dataSelezionata.getTimezoneOffset()
         });
     } else {
         // Fallback per stringhe - usa DateTime per parsing sicuro
         const dataString = dataSelezionata;
         dataUnix = new DateTime(dataString).setHour(0).setMinute(0).setSecond(0).getUnixTimestamp();
         domaniUnix = new DateTime(dataString).setHour(0).setMinute(0).setSecond(0).addDay(1).getUnixTimestamp();
+        
+        console.log('DEBUG getUsedTime API (string):', {
+            dataString,
+            dataUnix,
+            domaniUnix
+        });
     }
 
     try {

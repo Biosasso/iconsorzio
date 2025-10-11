@@ -481,7 +481,7 @@ export default function Dashboard({ }) {
                 }
             }
             else if (selectedFilter === 'insegnante') {
-                filteredArray = disponibilitaCalendar.filter(el => el.istruttore.profile.id === selectedInsegnante)
+                filteredArray = disponibilitaCalendar.filter(el => el.istruttore?.profile?.id === selectedInsegnante)
                 // NON resettare i filtri se sono stati salvati in sessionStorage
                 if (!filtersSaved) {
                     setSelectedWorkplace('');
@@ -489,7 +489,7 @@ export default function Dashboard({ }) {
                 }
             }
             else if (selectedFilter === 'istruttore') {
-                filteredArray = disponibilitaCalendar.filter(el => el.istruttore.profile.id === selectedIstruttore)
+                filteredArray = disponibilitaCalendar.filter(el => el.istruttore?.profile?.id === selectedIstruttore)
                 // NON resettare i filtri se sono stati salvati in sessionStorage
                 if (!filtersSaved) {
                     setSelectedWorkplace('');

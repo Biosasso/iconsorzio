@@ -165,8 +165,8 @@ export default function Dashboard({ }) {
     const [ids, setIds] = useState();
     const [selectedFilter, setSelectedFilter] = useState('mostra-tutti')
     const [selectedWorkplace, setSelectedWorkplace] = useState('')
-    const [selectedIstruttore, setSelectedIstruttore] = useState()
-    const [selectedInsegnante, setSelectedInsegnante] = useState()
+    const [selectedIstruttore, setSelectedIstruttore] = useState('')
+    const [selectedInsegnante, setSelectedInsegnante] = useState('')
     
     // Stato per filtri salvati in sessione
     const [savedFilters, setSavedFilters] = useState({
@@ -480,16 +480,26 @@ export default function Dashboard({ }) {
                     setSelectedIstruttore('')
                 }
             }
-            else if (selectedFilter === 'insegnante') {
-                filteredArray = disponibilitaCalendar.filter(el => el.istruttore?.profile?.id === selectedInsegnante)
+            else if (selectedFilter === 'insegnante' && selectedInsegnante) {
+                filteredArray = disponibilitaCalendar.filter(el => {
+                    // Controllo sicuro: verifica che istruttore e profile esistano
+                    if (!el.istruttore || !el.istruttore.profile || !el.istruttore.profile.id) return false;
+                    // Converti entrambi a stringhe per confronto sicuro
+                    return String(el.istruttore.profile.id) === String(selectedInsegnante);
+                })
                 // NON resettare i filtri se sono stati salvati in sessionStorage
                 if (!filtersSaved) {
                     setSelectedWorkplace('');
                     setSelectedIstruttore('')
                 }
             }
-            else if (selectedFilter === 'istruttore') {
-                filteredArray = disponibilitaCalendar.filter(el => el.istruttore?.profile?.id === selectedIstruttore)
+            else if (selectedFilter === 'istruttore' && selectedIstruttore) {
+                filteredArray = disponibilitaCalendar.filter(el => {
+                    // Controllo sicuro: verifica che istruttore e profile esistano
+                    if (!el.istruttore || !el.istruttore.profile || !el.istruttore.profile.id) return false;
+                    // Converti entrambi a stringhe per confronto sicuro (risolve problema string vs number)
+                    return String(el.istruttore.profile.id) === String(selectedIstruttore);
+                })
                 // NON resettare i filtri se sono stati salvati in sessionStorage
                 if (!filtersSaved) {
                     setSelectedWorkplace('');
@@ -595,13 +605,14 @@ export default function Dashboard({ }) {
                         <select
                             id="istruttore"
                             name="istruttore"
-                            defaultValue={selectedIstruttore}
+                            value={selectedIstruttore || ''}
                             onChange={(e) => setSelectedIstruttore(e.target.value)}
                             className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm capitalize"
                         >
+                            <option value="">Seleziona istruttore</option>
                             {filteredListForSelectedBox && filteredListForSelectedBox.length > 0 &&
                                 filteredListForSelectedBox.map((el) =>
-                                    <option key={el.user.profile.id} value={el.user.profile.id}>{el.user.profile.lastname} {el.user.profile.firstname}</option>
+                                    <option key={el.user.profile.id} value={String(el.user.profile.id)}>{el.user.profile.lastname} {el.user.profile.firstname}</option>
                                 )
                             }
                         </select>
